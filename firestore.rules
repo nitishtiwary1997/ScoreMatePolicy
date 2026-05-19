@@ -1,0 +1,230 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ══════════════════════════════════════════════════════════════
+    //  HELPER FUNCTIONS
+    // ══════════════════════════════════════════════════════════════
+
+    // Auth
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.firebase.sign_in_provider != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Shorthand
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // String validators
+    function isNonEmptyString(val) {
+      return val is string && val.size() > 0;
+    }
+
+    function isStringBetween(val, minLen, maxLen) {
+      return val is string && val.size() >= minLen && val.size() <= maxLen;
+    }
+
+    // ── Match field validators ────────────────────────────────────
+
+    function isValidMatchStatus(s) {
+      return s in ['TOSS', 'INNINGS_1', 'INNINGS_2', 'COMPLETED'];
+    }
+
+    function isValidTossChoice(c) {
+      return c in ['BAT', 'BOWL'];
+    }
+
+    // Status can only move forward, never backward
+    function isValidStatusTransition(oldStatus, newStatus) {
+      return (oldStatus == 'TOSS'      && newStatus in ['TOSS', 'INNINGS_1'])
+          || (oldStatus == 'INNINGS_1' && newStatus in ['INNINGS_1', 'INNINGS_2'])
+          || (oldStatus == 'INNINGS_2' && newStatus in ['INNINGS_2', 'COMPLETED'])
+          || (oldStatus == 'COMPLETED' && newStatus == 'COMPLETED');
+    }
+
+    function hasAllMatchFields(data) {
+      return data.keys().hasAll([
+        'id', 'team1Name', 'team2Name', 'totalOvers',
+        'tossWonByTeam', 'tossChoice', 'status',
+        'innings1BattingTeam',
+        'innings1OnStrikeId', 'innings1OffStrikeId', 'innings1BowlerId', 'innings1Completed',
+        'innings2OnStrikeId', 'innings2OffStrikeId', 'innings2BowlerId', 'innings2Completed',
+        'createdAt'
+      ]);
+    }
+
+    function isValidMatchData(data) {
+      return hasAllMatchFields(data)
+          // Team names: 1–50 chars, must differ
+          && isStringBetween(data.team1Name, 1, 50)
+          && isStringBetween(data.team2Name, 1, 50)
+          && data.team1Name != data.team2Name
+          // Overs: 1–50
+          && data.totalOvers is int
+          && data.totalOvers >= 1
+          && data.totalOvers <= 50
+          // Toss
+          && data.tossWonByTeam is int
+          && data.tossWonByTeam in [0, 1, 2]
+          && isValidTossChoice(data.tossChoice)
+          // Status
+          && isValidMatchStatus(data.status)
+          // Innings
+          && data.innings1BattingTeam is int
+          && data.innings1BattingTeam in [0, 1, 2]
+          && data.innings1Completed is bool
+          && data.innings2Completed is bool
+          // IDs are strings
+          && data.innings1OnStrikeId  is string
+          && data.innings1OffStrikeId is string
+          && data.innings1BowlerId    is string
+          && data.innings2OnStrikeId  is string
+          && data.innings2OffStrikeId is string
+          && data.innings2BowlerId    is string
+          // Timestamp
+          && data.createdAt is int
+          && data.createdAt > 0;
+    }
+
+    // ── Player field validators ───────────────────────────────────
+
+    function isValidPlayerData(data, expectedMatchId) {
+      return data.keys().hasAll(['id', 'name', 'matchId', 'team'])
+          && isNonEmptyString(data.id)
+          && isStringBetween(data.name, 1, 50)
+          && data.matchId == expectedMatchId
+          && data.team is int
+          && data.team in [1, 2];
+    }
+
+    // ── Ball field validators ─────────────────────────────────────
+
+    function isValidExtraType(val) {
+      return val in ['', 'WIDE', 'NO_BALL', 'BYE', 'LEG_BYE'];
+    }
+
+    function isValidWicketType(val) {
+      return val in ['', 'BOWLED', 'CAUGHT', 'LBW', 'RUN_OUT', 'STUMPED', 'HIT_WICKET'];
+    }
+
+    function isValidBallData(data, expectedMatchId, expectedInnings) {
+      return data.keys().hasAll([
+        'id', 'matchId', 'innings', 'overNumber', 'ballInOver',
+        'batsmanId', 'bowlerId', 'runs', 'extras',
+        'extraType', 'isWicket', 'wicketType', 'dismissedPlayerId'
+      ])
+          && isNonEmptyString(data.id)
+          // Consistency: ball must belong to the correct match + innings
+          && data.matchId == expectedMatchId
+          && data.innings == expectedInnings
+          // Over position
+          && data.overNumber is int && data.overNumber >= 0 && data.overNumber <= 49
+          && data.ballInOver is int && data.ballInOver >= 0 && data.ballInOver <= 6
+          // Players
+          && isNonEmptyString(data.batsmanId)
+          && isNonEmptyString(data.bowlerId)
+          // Runs: 0-6 (7 allowed for rare cases like 5-run penalty)
+          && data.runs   is int && data.runs   >= 0 && data.runs   <= 7
+          && data.extras is int && data.extras >= 0 && data.extras <= 7
+          // Enum values
+          && isValidExtraType(data.extraType)
+          && data.isWicket is bool
+          && isValidWicketType(data.wicketType)
+          && data.dismissedPlayerId is string
+          // Logical: if no wicket, wicketType must be empty
+          && (data.isWicket == true || data.wicketType == '')
+          // Logical: if not extra, extras must be 0
+          && (data.extraType != '' || data.extras == 0);
+    }
+
+
+    // ══════════════════════════════════════════════════════════════
+    //  RULES
+    // ══════════════════════════════════════════════════════════════
+
+    // Block all access by default (deny everything not explicitly allowed)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /users/{userId} {
+      // Users cannot read/write the user document itself — only subcollections
+      allow read, write: if false;
+
+      // ── Matches ─────────────────────────────────────────────────
+      match /matches/{matchId} {
+
+        allow read: if isOwner(userId);
+
+        // CREATE: full validation, document ID must match id field
+        allow create: if isOwner(userId)
+                      && incoming().id == matchId
+                      && isValidMatchData(incoming());
+
+        // UPDATE: core fields are immutable; only status/game-state can change
+        allow update: if isOwner(userId)
+                      && incoming().id          == existing().id
+                      && incoming().createdAt   == existing().createdAt
+                      && incoming().team1Name   == existing().team1Name
+                      && incoming().team2Name   == existing().team2Name
+                      && incoming().totalOvers  == existing().totalOvers
+                      && isValidStatusTransition(existing().status, incoming().status)
+                      && isValidMatchData(incoming());
+
+        // DELETE: owner only
+        allow delete: if isOwner(userId);
+
+
+        // ── Players (write-once, immutable) ──────────────────────
+        match /players/{playerId} {
+          allow read: if isOwner(userId);
+
+          allow create: if isOwner(userId)
+                        && incoming().id == playerId
+                        && isValidPlayerData(incoming(), matchId);
+
+          // Players cannot be edited after creation
+          allow update: if false;
+
+          // Allow delete only if the match still exists and is in TOSS state
+          // (prevents deleting players mid-match)
+          allow delete: if isOwner(userId)
+                        && get(/databases/$(database)/documents/users/$(userId)/matches/$(matchId)).data.status == 'TOSS';
+        }
+
+
+        // ── Innings 1 Balls (insert + delete only, no updates) ───
+        match /balls_innings1/{ballId} {
+          allow read: if isOwner(userId);
+
+          allow create: if isOwner(userId)
+                        && incoming().id == ballId
+                        && isValidBallData(incoming(), matchId, 1);
+
+          // Balls are immutable — only undo (delete) allowed
+          allow update: if false;
+
+          allow delete: if isOwner(userId);
+        }
+
+
+        // ── Innings 2 Balls (insert + delete only, no updates) ───
+        match /balls_innings2/{ballId} {
+          allow read: if isOwner(userId);
+
+          allow create: if isOwner(userId)
+                        && incoming().id == ballId
+                        && isValidBallData(incoming(), matchId, 2);
+
+          allow update: if false;
+
+          allow delete: if isOwner(userId);
+        }
+      }
+    }
+  }
+}

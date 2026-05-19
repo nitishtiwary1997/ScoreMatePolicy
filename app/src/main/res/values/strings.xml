@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">ScoreMate</string>
+    <string name="default_web_client_id" translatable="false">716481170804-btsi7pusvjdakm4ovsffs2k5s20oqdi2.apps.googleusercontent.com</string>
+</resources>

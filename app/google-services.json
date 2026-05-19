@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "716481170804",
+    "project_id": "cricketscoringapp-a9112",
+    "storage_bucket": "cricketscoringapp-a9112.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:716481170804:android:a942fa5a6474884df47021",
+        "android_client_info": {
+          "package_name": "com.nitish.cricketscoringapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "716481170804-btsi7pusvjdakm4ovsffs2k5s20oqdi2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCX3bjQyA3G-XarROsjaaozgTqQ4AJKGnU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "716481170804-btsi7pusvjdakm4ovsffs2k5s20oqdi2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

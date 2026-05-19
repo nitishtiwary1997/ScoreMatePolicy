@@ -1,0 +1,23 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "balls_innings1",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "matchId",     "order": "ASCENDING" },
+        { "fieldPath": "overNumber",  "order": "ASCENDING" },
+        { "fieldPath": "ballInOver",  "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "balls_innings2",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "matchId",     "order": "ASCENDING" },
+        { "fieldPath": "overNumber",  "order": "ASCENDING" },
+        { "fieldPath": "ballInOver",  "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
