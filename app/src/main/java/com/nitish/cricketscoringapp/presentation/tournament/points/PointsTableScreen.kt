@@ -60,18 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nitish.cricketscoringapp.domain.model.PointsEntry
-import com.nitish.cricketscoringapp.ui.theme.DarkBg
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface2
-import com.nitish.cricketscoringapp.ui.theme.DividerColor
-import com.nitish.cricketscoringapp.ui.theme.DoneGreen
-import com.nitish.cricketscoringapp.ui.theme.EmeraldContainer
-import com.nitish.cricketscoringapp.ui.theme.EmeraldPrimary
-import com.nitish.cricketscoringapp.ui.theme.GoldPrimary
-import com.nitish.cricketscoringapp.ui.theme.OutlineColor
-import com.nitish.cricketscoringapp.ui.theme.TextPrimary
-import com.nitish.cricketscoringapp.ui.theme.TextSecondary
-import com.nitish.cricketscoringapp.ui.theme.TextTertiary
+import com.nitish.cricketscoringapp.ui.theme.*
 import kotlin.math.abs
 
 // Column widths (right side scrollable section)
@@ -88,6 +77,7 @@ fun PointsTableScreen(
     onBack: () -> Unit,
     viewModel: PointsTableViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val tournament by viewModel.tournament.collectAsState()
     val table by viewModel.pointsTable.collectAsState()
     val isRecalculating by viewModel.isRecalculating.collectAsState()
@@ -99,7 +89,7 @@ fun PointsTableScreen(
     }
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         snackbarHost = { SnackbarHost(snackbarHost) },
         topBar = {
             TopAppBar(
@@ -109,7 +99,7 @@ fun PointsTableScreen(
                             "Points Table",
                             fontWeight = FontWeight.Black,
                             fontSize = 17.sp,
-                            color = TextPrimary
+                            color = c.textPrimary
                         )
                         tournament?.let {
                             Text(
@@ -124,7 +114,7 @@ fun PointsTableScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Back", tint = TextSecondary)
+                        Icon(Icons.Default.ArrowBack, "Back", tint = c.textSecondary)
                     }
                 },
                 actions = {
@@ -142,7 +132,7 @@ fun PointsTableScreen(
                     }
                     Spacer(Modifier.width(4.dp))
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = c.bg)
             )
         }
     ) { padding ->
@@ -162,7 +152,7 @@ fun PointsTableScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(DarkBg)
+                .background(c.bg)
                 .padding(padding),
             contentPadding = PaddingValues(bottom = 32.dp)
         ) {
@@ -191,7 +181,7 @@ fun PointsTableScreen(
                     QualificationDivider()
                 } else {
                     HorizontalDivider(
-                        color = DividerColor,
+                        color = c.divider,
                         thickness = 0.5.dp,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
@@ -211,10 +201,11 @@ fun PointsTableScreen(
 
 @Composable
 private fun TableHeader(scrollState: androidx.compose.foundation.ScrollState) {
+    val c = LocalAppColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(DarkSurface2)
+            .background(c.surface2)
             .padding(vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -240,11 +231,12 @@ private fun TableHeader(scrollState: androidx.compose.foundation.ScrollState) {
 
 @Composable
 private fun HeaderCell(text: String, width: Dp, align: TextAlign) {
+    val c = LocalAppColors.current
     Box(modifier = Modifier.width(width), contentAlignment = Alignment.Center) {
         Text(
             text,
             style = MaterialTheme.typography.labelSmall,
-            color = TextTertiary,
+            color = c.textTertiary,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.5.sp,
             textAlign = align,
@@ -262,6 +254,7 @@ private fun TableRow(
     isQualified: Boolean,
     scrollState: androidx.compose.foundation.ScrollState
 ) {
+    val c = LocalAppColors.current
     val bgColor = when {
         isQualified -> EmeraldPrimary.copy(alpha = 0.04f)
         else        -> Color.Transparent
@@ -297,7 +290,7 @@ private fun TableRow(
                 "$position",
                 fontSize = 11.sp,
                 fontWeight = FontWeight.ExtraBold,
-                color = posBadgeFg(position)
+                color = posBadgeFg(position, c.textTertiary)
             )
         }
 
@@ -314,7 +307,7 @@ private fun TableRow(
                 entry.teamName,
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.SemiBold,
-                color = TextPrimary,
+                color = c.textPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -340,12 +333,13 @@ private fun StatCell(
     fontWeight: FontWeight = FontWeight.Normal,
     highlight: Color? = null
 ) {
+    val c = LocalAppColors.current
     Box(modifier = Modifier.width(width), contentAlignment = Alignment.Center) {
         Text(
             value,
             fontSize = 13.sp,
             fontWeight = fontWeight,
-            color = highlight ?: TextPrimary,
+            color = highlight ?: c.textPrimary,
             textAlign = TextAlign.Center
         )
     }
@@ -353,10 +347,11 @@ private fun StatCell(
 
 @Composable
 private fun NrrCell(nrr: Double, width: Dp) {
+    val c = LocalAppColors.current
     val color = when {
         nrr > 0  -> DoneGreen
         nrr < 0  -> Color(0xFFEF9A9A)
-        else     -> TextSecondary
+        else     -> c.textSecondary
     }
     Box(modifier = Modifier.width(width), contentAlignment = Alignment.Center) {
         Text(
@@ -448,20 +443,21 @@ private fun QualificationLegend(qualifiedCount: Int) {
 
 @Composable
 private fun PointsLegend() {
+    val c = LocalAppColors.current
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(DarkSurface)
-            .border(1.dp, OutlineColor, RoundedCornerShape(10.dp))
+            .background(c.surface)
+            .border(1.dp, c.outline, RoundedCornerShape(10.dp))
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text(
             "POINTS SYSTEM",
             style = MaterialTheme.typography.labelSmall,
-            color = TextTertiary,
+            color = c.textTertiary,
             letterSpacing = 1.sp,
             fontWeight = FontWeight.Bold
         )
@@ -473,7 +469,7 @@ private fun PointsLegend() {
             listOf("Win" to "2 pts", "Tie" to "1 pt", "No Result" to "1 pt", "Loss" to "0 pts").forEach { (label, pts) ->
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(pts, style = MaterialTheme.typography.labelMedium, color = EmeraldPrimary, fontWeight = FontWeight.Bold)
-                    Text(label, style = MaterialTheme.typography.labelSmall, color = TextSecondary, fontSize = 10.sp)
+                    Text(label, style = MaterialTheme.typography.labelSmall, color = c.textSecondary, fontSize = 10.sp)
                 }
             }
         }
@@ -484,6 +480,7 @@ private fun PointsLegend() {
 
 @Composable
 private fun EmptyState(modifier: Modifier = Modifier, isLoading: Boolean) {
+    val c = LocalAppColors.current
     Column(
         modifier = modifier.padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -502,12 +499,12 @@ private fun EmptyState(modifier: Modifier = Modifier, isLoading: Boolean) {
                 Icon(Icons.Default.TableChart, null, tint = EmeraldPrimary, modifier = Modifier.size(44.dp))
             }
             Spacer(Modifier.height(20.dp))
-            Text("No Table Yet", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
+            Text("No Table Yet", style = MaterialTheme.typography.titleMedium, color = c.textPrimary, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
             Text(
                 "Complete group matches for the points table to populate automatically.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = TextSecondary,
+                color = c.textSecondary,
                 textAlign = TextAlign.Center
             )
         }
@@ -523,11 +520,11 @@ private fun posBadgeBg(pos: Int) = when (pos) {
     else -> Color(0x18FFFFFF)
 }
 
-private fun posBadgeFg(pos: Int) = when (pos) {
+private fun posBadgeFg(pos: Int, textTertiary: Color) = when (pos) {
     1    -> Color(0xFFFFD700)
     2    -> Color(0xFFC0C0C0)
     3    -> Color(0xFFCD7F32)
-    else -> TextTertiary
+    else -> textTertiary
 }
 
 private fun nrrString(nrr: Double): String {

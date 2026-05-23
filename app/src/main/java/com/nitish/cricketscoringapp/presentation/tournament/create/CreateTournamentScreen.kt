@@ -84,17 +84,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nitish.cricketscoringapp.domain.model.BallType
 import com.nitish.cricketscoringapp.domain.model.TournamentMatchFormat
 import com.nitish.cricketscoringapp.domain.model.TournamentType
-import com.nitish.cricketscoringapp.ui.theme.DarkBg
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface2
-import com.nitish.cricketscoringapp.ui.theme.DividerColor
-import com.nitish.cricketscoringapp.ui.theme.EmeraldDark
-import com.nitish.cricketscoringapp.ui.theme.EmeraldPrimary
-import com.nitish.cricketscoringapp.ui.theme.GoldPrimary
-import com.nitish.cricketscoringapp.ui.theme.OutlineColor
-import com.nitish.cricketscoringapp.ui.theme.TextPrimary
-import com.nitish.cricketscoringapp.ui.theme.TextSecondary
-import com.nitish.cricketscoringapp.ui.theme.TextTertiary
+import com.nitish.cricketscoringapp.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -109,6 +99,7 @@ fun CreateTournamentScreen(
     onBack: () -> Unit,
     viewModel: CreateTournamentViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     // Navigate away once tournament is created
@@ -117,13 +108,13 @@ fun CreateTournamentScreen(
     }
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = "Create Tournament",
-                        color = TextPrimary,
+                        color = c.textPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
@@ -132,10 +123,10 @@ fun CreateTournamentScreen(
                     IconButton(onClick = {
                         if (state.currentStep == 0) onBack() else viewModel.prevStep()
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = TextPrimary)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = c.textPrimary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkSurface)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = c.surface)
             )
         },
         bottomBar = {
@@ -153,7 +144,7 @@ fun CreateTournamentScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(DarkBg)
+                .background(c.bg)
                 .padding(padding)
         ) {
             StepIndicator(currentStep = state.currentStep, totalSteps = 3)
@@ -196,10 +187,11 @@ fun CreateTournamentScreen(
 
 @Composable
 private fun StepIndicator(currentStep: Int, totalSteps: Int) {
+    val c = LocalAppColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(DarkSurface)
+            .background(c.surface)
             .padding(horizontal = 24.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
@@ -217,7 +209,7 @@ private fun StepIndicator(currentStep: Int, totalSteps: Int) {
                         when {
                             isDone    -> EmeraldPrimary
                             isCurrent -> GoldPrimary
-                            else      -> DarkSurface2
+                            else      -> c.surface2
                         }
                     )
                     .border(
@@ -231,7 +223,7 @@ private fun StepIndicator(currentStep: Int, totalSteps: Int) {
                 } else {
                     Text(
                         text  = "${index + 1}",
-                        color = if (isCurrent) Color.Black else TextTertiary,
+                        color = if (isCurrent) Color.Black else c.textTertiary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
                     )
@@ -244,7 +236,7 @@ private fun StepIndicator(currentStep: Int, totalSteps: Int) {
                         .weight(1f)
                         .padding(horizontal = 6.dp),
                     thickness = 2.dp,
-                    color     = if (index < currentStep) EmeraldPrimary else DividerColor
+                    color     = if (index < currentStep) EmeraldPrimary else c.divider
                 )
             }
         }
@@ -257,7 +249,7 @@ private fun StepIndicator(currentStep: Int, totalSteps: Int) {
         fontSize = 13.sp,
         modifier = Modifier
             .fillMaxWidth()
-            .background(DarkSurface)
+            .background(c.surface)
             .padding(bottom = 12.dp, start = 24.dp)
     )
 }
@@ -267,6 +259,7 @@ private fun StepIndicator(currentStep: Int, totalSteps: Int) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Step1BasicInfo(state: CreateTournamentState, vm: CreateTournamentViewModel) {
+    val c = LocalAppColors.current
     var showStartPicker by remember { mutableStateOf(false) }
     var showEndPicker   by remember { mutableStateOf(false) }
 
@@ -283,7 +276,7 @@ private fun Step1BasicInfo(state: CreateTournamentState, vm: CreateTournamentVie
                 }) { Text("OK", color = EmeraldPrimary) }
             },
             dismissButton = {
-                TextButton(onClick = { showStartPicker = false }) { Text("Cancel", color = TextSecondary) }
+                TextButton(onClick = { showStartPicker = false }) { Text("Cancel", color = c.textSecondary) }
             }
         ) { DatePicker(state = startPickerState) }
     }
@@ -298,7 +291,7 @@ private fun Step1BasicInfo(state: CreateTournamentState, vm: CreateTournamentVie
                 }) { Text("OK", color = EmeraldPrimary) }
             },
             dismissButton = {
-                TextButton(onClick = { showEndPicker = false }) { Text("Cancel", color = TextSecondary) }
+                TextButton(onClick = { showEndPicker = false }) { Text("Cancel", color = c.textSecondary) }
             }
         ) { DatePicker(state = endPickerState) }
     }
@@ -366,13 +359,13 @@ private fun Step1BasicInfo(state: CreateTournamentState, vm: CreateTournamentVie
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .background(DarkSurface2)
+                .background(c.surface2)
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("Public Tournament", color = TextPrimary, fontWeight = FontWeight.Medium)
-                Text("Anyone can view this tournament", color = TextSecondary, fontSize = 12.sp)
+                Text("Public Tournament", color = c.textPrimary, fontWeight = FontWeight.Medium)
+                Text("Anyone can view this tournament", color = c.textSecondary, fontSize = 12.sp)
             }
             Switch(
                 checked  = state.isPublic,
@@ -390,6 +383,7 @@ private fun Step1BasicInfo(state: CreateTournamentState, vm: CreateTournamentVie
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun Step2MatchSettings(state: CreateTournamentState, vm: CreateTournamentViewModel) {
+    val c = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -424,7 +418,7 @@ private fun Step2MatchSettings(state: CreateTournamentState, vm: CreateTournamen
             if (state.matchFormat == TournamentMatchFormat.CUSTOM) {
                 Spacer(Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Overs: ", color = TextSecondary, fontSize = 13.sp)
+                    Text("Overs: ", color = c.textSecondary, fontSize = 13.sp)
                     Text("${state.customOvers}", color = GoldPrimary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     Spacer(Modifier.width(12.dp))
                     Slider(
@@ -471,7 +465,7 @@ private fun Step2MatchSettings(state: CreateTournamentState, vm: CreateTournamen
         // Players Per Team
         SettingsSection(title = "Players Per Team", icon = Icons.Default.Person) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Players: ", color = TextSecondary, fontSize = 13.sp)
+                Text("Players: ", color = c.textSecondary, fontSize = 13.sp)
                 Text("${state.playersPerTeam}", color = EmeraldPrimary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 Spacer(Modifier.width(12.dp))
                 Slider(
@@ -496,6 +490,7 @@ private fun Step2MatchSettings(state: CreateTournamentState, vm: CreateTournamen
 
 @Composable
 private fun Step3Details(state: CreateTournamentState, vm: CreateTournamentViewModel) {
+    val c = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -505,7 +500,7 @@ private fun Step3Details(state: CreateTournamentState, vm: CreateTournamentViewM
     ) {
         Text(
             "All fields below are optional — you can fill them later.",
-            color    = TextSecondary,
+            color    = c.textSecondary,
             fontSize = 13.sp
         )
 
@@ -559,23 +554,24 @@ private fun StepNavBar(
     onBack: () -> Unit,
     onNext: () -> Unit
 ) {
+    val c = LocalAppColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(DarkSurface)
+            .background(c.surface)
             .padding(horizontal = 20.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         TextButton(onClick = onBack) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = TextSecondary, modifier = Modifier.size(18.dp))
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = c.textSecondary, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(4.dp))
-            Text(if (currentStep == 0) "Cancel" else "Back", color = TextSecondary)
+            Text(if (currentStep == 0) "Cancel" else "Back", color = c.textSecondary)
         }
 
         Text(
             "${currentStep + 1} / $totalSteps",
-            color = TextTertiary,
+            color = c.textTertiary,
             fontSize = 13.sp
         )
 
@@ -618,10 +614,11 @@ private fun FormTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     capitalization: KeyboardCapitalization = KeyboardCapitalization.None
 ) {
+    val c = LocalAppColors.current
     OutlinedTextField(
         value         = value,
         onValueChange = onValueChange,
-        label         = { Text(label, color = TextSecondary, fontSize = 13.sp) },
+        label         = { Text(label, color = c.textSecondary, fontSize = 13.sp) },
         leadingIcon   = { Icon(icon, null, tint = EmeraldPrimary, modifier = Modifier.size(20.dp)) },
         isError       = error != null,
         supportingText = error?.let { { Text(it, color = Color(0xFFFF6B6B), fontSize = 12.sp) } },
@@ -632,12 +629,12 @@ private fun FormTextField(
         shape         = RoundedCornerShape(12.dp),
         colors        = OutlinedTextFieldDefaults.colors(
             focusedBorderColor   = EmeraldPrimary,
-            unfocusedBorderColor = OutlineColor,
-            focusedTextColor     = TextPrimary,
-            unfocusedTextColor   = TextPrimary,
+            unfocusedBorderColor = c.outline,
+            focusedTextColor     = c.textPrimary,
+            unfocusedTextColor   = c.textPrimary,
             cursorColor          = EmeraldPrimary,
-            focusedContainerColor   = DarkSurface2,
-            unfocusedContainerColor = DarkSurface2
+            focusedContainerColor   = c.surface2,
+            unfocusedContainerColor = c.surface2
         )
     )
 }
@@ -650,17 +647,18 @@ private fun DateField(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val c = LocalAppColors.current
     val fmt = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
     Column(modifier = modifier) {
-        Text(label, color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(bottom = 4.dp))
+        Text(label, color = c.textSecondary, fontSize = 12.sp, modifier = Modifier.padding(bottom = 4.dp))
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .background(DarkSurface2)
+                .background(c.surface2)
                 .border(
                     width = 1.dp,
-                    color = if (error != null) Color(0xFFFF6B6B) else OutlineColor,
+                    color = if (error != null) Color(0xFFFF6B6B) else c.outline,
                     shape = RoundedCornerShape(12.dp)
                 )
                 .clickable(onClick = onClick)
@@ -669,7 +667,7 @@ private fun DateField(
         ) {
             Icon(Icons.Default.CalendarMonth, null, tint = EmeraldPrimary, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
-            Text(fmt.format(Date(dateMs)), color = TextPrimary, fontSize = 14.sp)
+            Text(fmt.format(Date(dateMs)), color = c.textPrimary, fontSize = 14.sp)
         }
         error?.let {
             if (it.isNotBlank()) Text(it, color = Color(0xFFFF6B6B), fontSize = 11.sp, modifier = Modifier.padding(top = 4.dp, start = 4.dp))
@@ -679,6 +677,7 @@ private fun DateField(
 
 @Composable
 private fun SelectableChip(label: String, selected: Boolean, onClick: () -> Unit) {
+    val c = LocalAppColors.current
     FilterChip(
         selected = selected,
         onClick  = onClick,
@@ -690,14 +689,14 @@ private fun SelectableChip(label: String, selected: Boolean, onClick: () -> Unit
             selectedContainerColor    = EmeraldDark,
             selectedLabelColor        = EmeraldPrimary,
             selectedLeadingIconColor  = EmeraldPrimary,
-            containerColor            = DarkSurface2,
-            labelColor                = TextSecondary
+            containerColor            = c.surface2,
+            labelColor                = c.textSecondary
         ),
         border = FilterChipDefaults.filterChipBorder(
             enabled              = true,
             selected             = selected,
             selectedBorderColor  = EmeraldPrimary,
-            borderColor          = OutlineColor,
+            borderColor          = c.outline,
             borderWidth          = 1.dp,
             selectedBorderWidth  = 1.5.dp
         )
@@ -710,18 +709,19 @@ private fun SettingsSection(
     icon: ImageVector,
     content: @Composable () -> Unit
 ) {
+    val c = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(DarkSurface)
+            .background(c.surface)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, null, tint = EmeraldPrimary, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
-            Text(title, color = TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            Text(title, color = c.textPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
         }
         content()
     }

@@ -49,16 +49,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nitish.cricketscoringapp.domain.model.LiveScoreSnapshot
+import com.nitish.cricketscoringapp.ui.theme.EmeraldPrimary
+import com.nitish.cricketscoringapp.ui.theme.GoldPrimary
+import com.nitish.cricketscoringapp.ui.theme.LiveRed
+import com.nitish.cricketscoringapp.ui.theme.LocalAppColors
 
-private val DarkBg        = Color(0xFF0A0E14)
-private val DarkSurface   = Color(0xFF131920)
-private val DarkSurface2  = Color(0xFF1A2230)
-private val EmeraldPrimary = Color(0xFF00C853)
-private val GoldPrimary   = Color(0xFFFFD740)
-private val LiveRed       = Color(0xFFFF4444)
-private val TextPrimary   = Color(0xFFF0F4FF)
-private val TextSecondary = Color(0xFF8A9BB5)
-private val OutlineColor  = Color(0xFF2A3A52)
 private val BluePrimary   = Color(0xFF2979FF)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,24 +62,25 @@ fun LiveScoreScreen(
     onBack: () -> Unit,
     viewModel: LiveScoreViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val snapshot by viewModel.snapshot.collectAsState()
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         topBar = {
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         LivePulseDot()
-                        Text("Live Score", color = TextPrimary, fontWeight = FontWeight.Bold)
+                        Text("Live Score", color = c.textPrimary, fontWeight = FontWeight.Bold)
                     }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = TextPrimary)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = c.textPrimary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkSurface)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = c.surface)
             )
         }
     ) { padding ->
@@ -92,9 +88,9 @@ fun LiveScoreScreen(
             snapshot == null -> {
                 Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Icon(Icons.Default.SportsCricket, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(48.dp))
-                        Text("Waiting for live score...", color = TextSecondary, fontSize = 15.sp)
-                        Text("Data will appear once the match starts.", color = TextSecondary.copy(alpha = 0.6f), fontSize = 12.sp)
+                        Icon(Icons.Default.SportsCricket, contentDescription = null, tint = c.textSecondary, modifier = Modifier.size(48.dp))
+                        Text("Waiting for live score...", color = c.textSecondary, fontSize = 15.sp)
+                        Text("Data will appear once the match starts.", color = c.textSecondary.copy(alpha = 0.6f), fontSize = 12.sp)
                     }
                 }
             }
@@ -143,12 +139,13 @@ private fun LivePulseDot() {
 
 @Composable
 private fun ScoreHeaderCard(s: LiveScoreSnapshot) {
+    val c = LocalAppColors.current
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(
-                Brush.verticalGradient(listOf(Color(0xFF1A2B1A), DarkSurface))
+                Brush.verticalGradient(listOf(Color(0xFF1A2B1A), c.surface))
             )
             .border(1.dp, EmeraldPrimary.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
             .padding(20.dp)
@@ -160,12 +157,12 @@ private fun ScoreHeaderCard(s: LiveScoreSnapshot) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(s.team1Name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.weight(1f))
-                Text("vs", color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 8.dp))
-                Text(s.team2Name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.weight(1f), textAlign = TextAlign.End)
+                Text(s.team1Name, color = c.textPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.weight(1f))
+                Text("vs", color = c.textSecondary, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 8.dp))
+                Text(s.team2Name, color = c.textPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.weight(1f), textAlign = TextAlign.End)
             }
 
-            HorizontalDivider(thickness = 0.5.dp, color = OutlineColor)
+            HorizontalDivider(thickness = 0.5.dp, color = c.outline)
 
             // Innings 1 score
             InningsScoreLine(
@@ -190,26 +187,28 @@ private fun ScoreHeaderCard(s: LiveScoreSnapshot) {
 
 @Composable
 private fun InningsScoreLine(label: String, score: String, overs: String, isActive: Boolean) {
+    val c = LocalAppColors.current
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, color = if (isActive) TextPrimary else TextSecondary, fontSize = 13.sp)
+        Text(label, color = if (isActive) c.textPrimary else c.textSecondary, fontSize = 13.sp)
         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(
                 score,
-                color = if (isActive) EmeraldPrimary else TextSecondary,
+                color = if (isActive) EmeraldPrimary else c.textSecondary,
                 fontSize = if (isActive) 28.sp else 18.sp,
                 fontWeight = FontWeight.ExtraBold
             )
-            Text("($overs ov)", color = TextSecondary, fontSize = 12.sp)
+            Text("($overs ov)", color = c.textSecondary, fontSize = 12.sp)
         }
     }
 }
 
 @Composable
 private fun TargetInfoCard(s: LiveScoreSnapshot) {
+    val c = LocalAppColors.current
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -228,19 +227,21 @@ private fun TargetInfoCard(s: LiveScoreSnapshot) {
 
 @Composable
 private fun TargetInfoCell(label: String, value: String) {
+    val c = LocalAppColors.current
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(label, color = TextSecondary, fontSize = 11.sp)
+        Text(label, color = c.textSecondary, fontSize = 11.sp)
         Text(value, color = GoldPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
     }
 }
 
 @Composable
 private fun BattingCard(s: LiveScoreSnapshot) {
+    val c = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(DarkSurface)
+            .background(c.surface)
     ) {
         SectionHeader("Batting", EmeraldPrimary)
         // Header row
@@ -248,12 +249,12 @@ private fun BattingCard(s: LiveScoreSnapshot) {
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Batter", color = TextSecondary, fontSize = 11.sp, modifier = Modifier.weight(1f))
+            Text("Batter", color = c.textSecondary, fontSize = 11.sp, modifier = Modifier.weight(1f))
             listOf("R", "B", "4s", "6s", "SR").forEach {
-                Text(it, color = TextSecondary, fontSize = 11.sp, modifier = Modifier.width(30.dp), textAlign = TextAlign.End)
+                Text(it, color = c.textSecondary, fontSize = 11.sp, modifier = Modifier.width(30.dp), textAlign = TextAlign.End)
             }
         }
-        HorizontalDivider(thickness = 0.5.dp, color = OutlineColor)
+        HorizontalDivider(thickness = 0.5.dp, color = c.outline)
 
         if (s.strikerName.isNotBlank()) {
             BatterRow(
@@ -278,7 +279,7 @@ private fun BattingCard(s: LiveScoreSnapshot) {
             )
         }
         if (s.strikerName.isBlank() && s.nonStrikerName.isBlank()) {
-            Text("  —", color = TextSecondary, fontSize = 13.sp, modifier = Modifier.padding(16.dp))
+            Text("  —", color = c.textSecondary, fontSize = 13.sp, modifier = Modifier.padding(16.dp))
         }
         Spacer(Modifier.height(8.dp))
     }
@@ -286,6 +287,7 @@ private fun BattingCard(s: LiveScoreSnapshot) {
 
 @Composable
 private fun BatterRow(name: String, runs: Int, balls: Int, fours: Int, sixes: Int, sr: String, onStrike: Boolean) {
+    val c = LocalAppColors.current
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -296,13 +298,13 @@ private fun BatterRow(name: String, runs: Int, balls: Int, fours: Int, sixes: In
             }
             Text(
                 name,
-                color = if (onStrike) TextPrimary else TextSecondary,
+                color = if (onStrike) c.textPrimary else c.textSecondary,
                 fontSize = 13.sp,
                 fontWeight = if (onStrike) FontWeight.Bold else FontWeight.Normal
             )
         }
         listOf("$runs", "$balls", if (onStrike) "$fours" else "-", if (onStrike) "$sixes" else "-", sr.ifBlank { "-" }).forEach { v ->
-            Text(v, color = if (onStrike) EmeraldPrimary else TextSecondary, fontSize = 13.sp, modifier = Modifier.width(30.dp), textAlign = TextAlign.End,
+            Text(v, color = if (onStrike) EmeraldPrimary else c.textSecondary, fontSize = 13.sp, modifier = Modifier.width(30.dp), textAlign = TextAlign.End,
                 fontWeight = if (onStrike) FontWeight.Bold else FontWeight.Normal)
         }
     }
@@ -310,23 +312,24 @@ private fun BatterRow(name: String, runs: Int, balls: Int, fours: Int, sixes: In
 
 @Composable
 private fun BowlingCard(s: LiveScoreSnapshot) {
+    val c = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(DarkSurface)
+            .background(c.surface)
     ) {
         SectionHeader("Bowling", BluePrimary)
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Bowler", color = TextSecondary, fontSize = 11.sp, modifier = Modifier.weight(1f))
+            Text("Bowler", color = c.textSecondary, fontSize = 11.sp, modifier = Modifier.weight(1f))
             listOf("O", "R", "W", "Econ").forEach {
-                Text(it, color = TextSecondary, fontSize = 11.sp, modifier = Modifier.width(36.dp), textAlign = TextAlign.End)
+                Text(it, color = c.textSecondary, fontSize = 11.sp, modifier = Modifier.width(36.dp), textAlign = TextAlign.End)
             }
         }
-        HorizontalDivider(thickness = 0.5.dp, color = OutlineColor)
+        HorizontalDivider(thickness = 0.5.dp, color = c.outline)
         if (s.bowlerName.isNotBlank()) {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
@@ -334,14 +337,14 @@ private fun BowlingCard(s: LiveScoreSnapshot) {
             ) {
                 Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(6.dp).clip(CircleShape).background(BluePrimary))
-                    Text(s.bowlerName, color = TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text(s.bowlerName, color = c.textPrimary, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                 }
                 listOf(s.bowlerOvers, "${s.bowlerRuns}", "${s.bowlerWickets}", s.bowlerEcon).forEach { v ->
                     Text(v, color = BluePrimary, fontSize = 13.sp, modifier = Modifier.width(36.dp), textAlign = TextAlign.End, fontWeight = FontWeight.Bold)
                 }
             }
         } else {
-            Text("  —", color = TextSecondary, fontSize = 13.sp, modifier = Modifier.padding(16.dp))
+            Text("  —", color = c.textSecondary, fontSize = 13.sp, modifier = Modifier.padding(16.dp))
         }
         Spacer(Modifier.height(8.dp))
     }
@@ -349,17 +352,18 @@ private fun BowlingCard(s: LiveScoreSnapshot) {
 
 @Composable
 private fun LastBallCard(desc: String) {
+    val c = LocalAppColors.current
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
-            .background(DarkSurface2)
-            .border(1.dp, OutlineColor, RoundedCornerShape(10.dp))
+            .background(c.surface2)
+            .border(1.dp, c.outline, RoundedCornerShape(10.dp))
             .padding(12.dp)
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text("Last ball:", color = TextSecondary, fontSize = 12.sp)
-            Text(desc, color = TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+            Text("Last ball:", color = c.textSecondary, fontSize = 12.sp)
+            Text(desc, color = c.textPrimary, fontSize = 13.sp, fontWeight = FontWeight.Medium)
         }
     }
 }
@@ -376,15 +380,16 @@ private fun RunRateCard(s: LiveScoreSnapshot) {
 
 @Composable
 private fun RunRateCell(label: String, value: String, color: Color, modifier: Modifier) {
+    val c = LocalAppColors.current
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
-            .background(DarkSurface)
+            .background(c.surface)
             .padding(14.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(label, color = TextSecondary, fontSize = 11.sp)
+            Text(label, color = c.textSecondary, fontSize = 11.sp)
             Text(value, color = color, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
         }
     }

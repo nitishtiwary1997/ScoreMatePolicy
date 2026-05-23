@@ -30,6 +30,7 @@ fun TossScreen(
     onBack: () -> Unit,
     viewModel: TossViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val state by viewModel.uiState.collectAsState()
 
     LaunchedEffect(state.startedMatchId) {
@@ -37,7 +38,7 @@ fun TossScreen(
     }
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         topBar = {
             TopAppBar(
                 title = {
@@ -46,12 +47,12 @@ fun TossScreen(
                             "Toss & Setup",
                             fontWeight = FontWeight.Black,
                             fontSize = 18.sp,
-                            color = TextPrimary
+                            color = c.textPrimary
                         )
                         Text(
                             "Configure your match",
                             fontSize = 11.sp,
-                            color = TextSecondary
+                            color = c.textSecondary
                         )
                     }
                 },
@@ -60,7 +61,7 @@ fun TossScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = EmeraldPrimary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = c.bg)
             )
         }
     ) { padding ->
@@ -69,7 +70,7 @@ fun TossScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(DarkBg)
+                .background(c.bg)
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
@@ -105,6 +106,7 @@ fun TossScreen(
 
 @Composable
 private fun StepIndicator(currentStep: TossStep) {
+    val c = LocalAppColors.current
     val steps = listOf("Toss", "Openers", "Bowler")
     val currentIndex = when (currentStep) {
         TossStep.TOSS_SETUP      -> 0
@@ -122,11 +124,11 @@ private fun StepIndicator(currentStep: TossStep) {
             val bgColor  = when {
                 active -> EmeraldPrimary
                 done   -> EmeraldDark
-                else   -> DarkSurface2
+                else   -> c.surface2
             }
             val textColor = when {
                 active || done -> Color.Black
-                else           -> TextTertiary
+                else           -> c.textTertiary
             }
             Box(
                 modifier = Modifier
@@ -139,7 +141,7 @@ private fun StepIndicator(currentStep: TossStep) {
                     "${index + 1}. $label",
                     fontSize = 12.sp,
                     fontWeight = if (active) FontWeight.Bold else FontWeight.Normal,
-                    color = if (active || done) Color.Black else TextTertiary
+                    color = if (active || done) Color.Black else c.textTertiary
                 )
             }
         }
@@ -156,8 +158,9 @@ private fun TossSetupStep(
     onChoiceSelected: (TossChoice) -> Unit,
     onNext: () -> Unit
 ) {
+    val c = LocalAppColors.current
     TossCard(title = "Toss Result", emoji = "🪙") {
-        Text("Who won the toss?", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
+        Text("Who won the toss?", style = MaterialTheme.typography.labelMedium, color = c.textSecondary)
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             listOf(1 to team1Name, 2 to team2Name).forEach { (team, name) ->
                 val selected = state.tossWonByTeam == team
@@ -171,7 +174,7 @@ private fun TossSetupStep(
         }
 
         Spacer(Modifier.height(4.dp))
-        Text("Elected to:", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
+        Text("Elected to:", style = MaterialTheme.typography.labelMedium, color = c.textSecondary)
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             listOf(TossChoice.BAT to "🏏 Bat", TossChoice.BOWL to "⚾ Bowl").forEach { (choice, label) ->
                 val selected = state.tossChoice == choice
@@ -269,11 +272,12 @@ private fun TossCard(
     emoji: String,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val c = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, OutlineColor)
+        colors = CardDefaults.cardColors(containerColor = c.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, c.outline)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -281,9 +285,9 @@ private fun TossCard(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(emoji, fontSize = 20.sp)
-                Text(title, style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
+                Text(title, style = MaterialTheme.typography.titleMedium, color = c.textPrimary, fontWeight = FontWeight.Bold)
             }
-            HorizontalDivider(color = DividerColor)
+            HorizontalDivider(color = c.divider)
             content()
         }
     }
@@ -296,16 +300,17 @@ private fun TossOptionChip(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val c = LocalAppColors.current
     val bg = if (selected)
         Brush.horizontalGradient(listOf(EmeraldPrimary, EmeraldDark))
     else
-        Brush.horizontalGradient(listOf(DarkSurface2, DarkSurface2))
+        Brush.horizontalGradient(listOf(c.surface2, c.surface2))
 
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
             .background(bg)
-            .border(1.dp, if (selected) EmeraldPrimary else OutlineColor, RoundedCornerShape(10.dp))
+            .border(1.dp, if (selected) EmeraldPrimary else c.outline, RoundedCornerShape(10.dp))
     ) {
         TextButton(
             onClick = onClick,
@@ -314,7 +319,7 @@ private fun TossOptionChip(
         ) {
             Text(
                 label,
-                color = if (selected) Color.Black else TextSecondary,
+                color = if (selected) Color.Black else c.textSecondary,
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
                 fontSize = 13.sp
             )
@@ -329,6 +334,7 @@ private fun PrimaryActionButton(
     enabled: Boolean = true,
     isLoading: Boolean = false
 ) {
+    val c = LocalAppColors.current
     Button(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().height(52.dp),
@@ -337,8 +343,8 @@ private fun PrimaryActionButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = EmeraldPrimary,
             contentColor = Color.Black,
-            disabledContainerColor = DarkSurface2,
-            disabledContentColor = TextTertiary
+            disabledContainerColor = c.surface2,
+            disabledContentColor = c.textTertiary
         )
     ) {
         if (isLoading) {
@@ -358,6 +364,7 @@ fun DarkPlayerDropdown(
     excludeId: String = "",
     onSelected: (String) -> Unit
 ) {
+    val c = LocalAppColors.current
     var expanded by remember { mutableStateOf(false) }
     val available = players.filter { it.id != excludeId }
     val selectedName = players.find { it.id == selectedId }?.name ?: "Select player"
@@ -367,43 +374,43 @@ fun DarkPlayerDropdown(
             value = selectedName,
             onValueChange = {},
             readOnly = true,
-            label = { Text(label, color = TextSecondary) },
+            label = { Text(label, color = c.textSecondary) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = TextPrimary,
-                unfocusedTextColor = TextPrimary,
+                focusedTextColor = c.textPrimary,
+                unfocusedTextColor = c.textPrimary,
                 focusedBorderColor = EmeraldPrimary,
-                unfocusedBorderColor = OutlineColor,
+                unfocusedBorderColor = c.outline,
                 focusedLabelColor = EmeraldPrimary,
-                unfocusedLabelColor = TextSecondary,
+                unfocusedLabelColor = c.textSecondary,
                 cursorColor = EmeraldPrimary,
-                focusedContainerColor = DarkSurface2,
-                unfocusedContainerColor = DarkSurface2,
+                focusedContainerColor = c.surface2,
+                unfocusedContainerColor = c.surface2,
                 focusedTrailingIconColor = EmeraldPrimary,
-                unfocusedTrailingIconColor = TextSecondary
+                unfocusedTrailingIconColor = c.textSecondary
             )
         )
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            containerColor = DarkSurface2
+            containerColor = c.surface2
         ) {
             available.forEach { player ->
                 DropdownMenuItem(
-                    text = { Text(player.name, color = TextPrimary) },
+                    text = { Text(player.name, color = c.textPrimary) },
                     onClick = {
                         onSelected(player.id)
                         expanded = false
                     },
                     colors = MenuItemColors(
-                        textColor = TextPrimary,
+                        textColor = c.textPrimary,
                         leadingIconColor = EmeraldPrimary,
                         trailingIconColor = EmeraldPrimary,
-                        disabledTextColor = TextTertiary,
-                        disabledLeadingIconColor = TextTertiary,
-                        disabledTrailingIconColor = TextTertiary
+                        disabledTextColor = c.textTertiary,
+                        disabledLeadingIconColor = c.textTertiary,
+                        disabledTrailingIconColor = c.textTertiary
                     )
                 )
             }

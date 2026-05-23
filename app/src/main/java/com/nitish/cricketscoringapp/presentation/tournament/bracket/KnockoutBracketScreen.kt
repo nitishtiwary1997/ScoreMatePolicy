@@ -65,18 +65,10 @@ import com.nitish.cricketscoringapp.domain.model.Fixture
 import com.nitish.cricketscoringapp.domain.model.FixtureStage
 import com.nitish.cricketscoringapp.domain.model.FixtureStatus
 import com.nitish.cricketscoringapp.domain.model.TournamentTeam
+import com.nitish.cricketscoringapp.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-private val DarkBg       = Color(0xFF0A0E14)
-private val DarkSurface  = Color(0xFF131920)
-private val DarkSurface2 = Color(0xFF1A2230)
-private val EmeraldPrimary = Color(0xFF00C853)
-private val GoldPrimary  = Color(0xFFFFD740)
-private val LiveRed      = Color(0xFFFF4444)
-private val TextPrimary  = Color(0xFFF0F4FF)
-private val TextSecondary = Color(0xFF8A9BB5)
-private val OutlineColor = Color(0xFF2A3A52)
 private val BluePrimary  = Color(0xFF2979FF)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,6 +77,7 @@ fun KnockoutBracketScreen(
     onBack: () -> Unit,
     viewModel: KnockoutBracketViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val uiState by viewModel.uiState.collectAsState()
     val extra   by viewModel.extra.collectAsState()
     val snackbarState = remember { SnackbarHostState() }
@@ -111,7 +104,7 @@ fun KnockoutBracketScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancel", color = TextSecondary)
+                    Text("Cancel", color = c.textSecondary)
                 }
             }
         ) {
@@ -120,23 +113,23 @@ fun KnockoutBracketScreen(
     }
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         snackbarHost = { SnackbarHost(snackbarState) },
         topBar = {
             TopAppBar(
-                title = { Text("Knockout Bracket", color = TextPrimary, fontWeight = FontWeight.Bold) },
+                title = { Text("Knockout Bracket", color = c.textPrimary, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = TextPrimary)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = c.textPrimary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkSurface)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = c.surface)
             )
         }
     ) { padding ->
         if (uiState.isLoading) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Text("Loading...", color = TextSecondary)
+                Text("Loading...", color = c.textSecondary)
             }
             return@Scaffold
         }
@@ -193,7 +186,7 @@ fun KnockoutBracketScreen(
                 bracket?.thirdPlacePlayoff?.let { playoff ->
                     BracketStageSection(
                         title = "3rd Place Playoff",
-                        stageColor = TextSecondary,
+                        stageColor = c.textSecondary,
                         fixtures = listOf(playoff),
                         teamsMap = teamsMap
                     )
@@ -218,6 +211,7 @@ fun KnockoutBracketScreen(
 
 @Composable
 private fun ChampionBanner(champion: TournamentTeam) {
+    val c = LocalAppColors.current
     val infiniteTransition = rememberInfiniteTransition(label = "champion")
     val glowAlpha by infiniteTransition.animateFloat(
         initialValue = 0.6f, targetValue = 1f, label = "glow",
@@ -235,7 +229,7 @@ private fun ChampionBanner(champion: TournamentTeam) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(Icons.Default.EmojiEvents, contentDescription = null, tint = GoldPrimary, modifier = Modifier.size(40.dp))
             Text("CHAMPION", color = GoldPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
-            Text(champion.name, color = TextPrimary, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
+            Text(champion.name, color = c.textPrimary, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
             if (champion.shortName.isNotBlank()) {
                 Text(champion.shortName, color = GoldPrimary.copy(alpha = 0.8f), fontSize = 14.sp)
             }
@@ -249,22 +243,23 @@ private fun ResolveQualificationCard(
     qualifiedCount: Int,
     onResolve: () -> Unit
 ) {
+    val c = LocalAppColors.current
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(DarkSurface2)
+            .background(c.surface2)
             .border(1.dp, EmeraldPrimary.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
             .padding(16.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Icon(Icons.Default.Stars, contentDescription = null, tint = EmeraldPrimary, modifier = Modifier.size(20.dp))
-                Text("Group Stage Complete", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text("Group Stage Complete", color = c.textPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
             Text(
                 "$qualifiedCount teams qualified for knockout stage.",
-                color = TextSecondary, fontSize = 13.sp
+                color = c.textSecondary, fontSize = 13.sp
             )
             Spacer(Modifier.height(4.dp))
             Button(
@@ -318,6 +313,7 @@ private fun BracketMatchCard(
     teamsMap: Map<String, TournamentTeam>,
     stageColor: Color
 ) {
+    val c = LocalAppColors.current
     val team1 = teamsMap[fixture.team1Id]
     val team2 = teamsMap[fixture.team2Id]
     val isLive = fixture.status == FixtureStatus.LIVE
@@ -327,10 +323,10 @@ private fun BracketMatchCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(DarkSurface)
+            .background(c.surface)
             .border(
                 width = if (isLive) 1.dp else 0.5.dp,
-                color = if (isLive) LiveRed else OutlineColor,
+                color = if (isLive) LiveRed else c.outline,
                 shape = RoundedCornerShape(12.dp)
             )
             .padding(12.dp)
@@ -345,7 +341,7 @@ private fun BracketMatchCard(
                 StatusChip(fixture.status)
                 Text(
                     formatMatchDate(fixture.scheduledAt),
-                    color = TextSecondary,
+                    color = c.textSecondary,
                     fontSize = 11.sp
                 )
             }
@@ -366,7 +362,7 @@ private fun BracketMatchCard(
                     modifier = Modifier.width(40.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("VS", color = TextSecondary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    Text("VS", color = c.textSecondary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                 }
                 // Team 2
                 BracketTeamColumn(
@@ -392,7 +388,7 @@ private fun BracketMatchCard(
             if (team1 == null || team2 == null) {
                 Text(
                     "Teams to be determined after qualification",
-                    color = TextSecondary,
+                    color = c.textSecondary,
                     fontSize = 11.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
@@ -409,6 +405,7 @@ private fun BracketTeamColumn(
     modifier: Modifier = Modifier,
     alignEnd: Boolean = false
 ) {
+    val c = LocalAppColors.current
     val alignment = if (alignEnd) Alignment.End else Alignment.Start
     Column(modifier = modifier, horizontalAlignment = alignment, verticalArrangement = Arrangement.spacedBy(4.dp)) {
         // Avatar
@@ -417,16 +414,16 @@ private fun BracketTeamColumn(
             modifier = Modifier
                 .size(36.dp)
                 .clip(CircleShape)
-                .background(if (isWinner) EmeraldPrimary.copy(alpha = 0.2f) else DarkSurface2)
-                .border(1.dp, if (isWinner) EmeraldPrimary else OutlineColor, CircleShape)
+                .background(if (isWinner) EmeraldPrimary.copy(alpha = 0.2f) else c.surface2)
+                .border(1.dp, if (isWinner) EmeraldPrimary else c.outline, CircleShape)
                 .align(alignment),
             contentAlignment = Alignment.Center
         ) {
-            Text(initials, color = if (isWinner) EmeraldPrimary else TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            Text(initials, color = if (isWinner) EmeraldPrimary else c.textSecondary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
         }
         Text(
             text = team?.name ?: "TBD",
-            color = if (isWinner) EmeraldPrimary else TextPrimary,
+            color = if (isWinner) EmeraldPrimary else c.textPrimary,
             fontSize = 12.sp,
             fontWeight = if (isWinner) FontWeight.Bold else FontWeight.Normal,
             maxLines = 2,
@@ -434,18 +431,19 @@ private fun BracketTeamColumn(
             textAlign = if (alignEnd) TextAlign.End else TextAlign.Start
         )
         if (team?.shortName?.isNotBlank() == true) {
-            Text(team.shortName, color = TextSecondary, fontSize = 10.sp)
+            Text(team.shortName, color = c.textSecondary, fontSize = 10.sp)
         }
     }
 }
 
 @Composable
 private fun StatusChip(status: FixtureStatus) {
+    val c = LocalAppColors.current
     val (bg, fg) = when (status) {
         FixtureStatus.LIVE      -> LiveRed.copy(alpha = 0.15f) to LiveRed
         FixtureStatus.COMPLETED -> EmeraldPrimary.copy(alpha = 0.15f) to EmeraldPrimary
-        FixtureStatus.UPCOMING  -> OutlineColor to TextSecondary
-        else                    -> DarkSurface2 to TextSecondary
+        FixtureStatus.UPCOMING  -> c.outline to c.textSecondary
+        else                    -> c.surface2 to c.textSecondary
     }
     Box(
         modifier = Modifier
@@ -464,22 +462,23 @@ private fun StatusChip(status: FixtureStatus) {
 
 @Composable
 private fun BracketEmptyState(canResolve: Boolean, groupComplete: Boolean) {
+    val c = LocalAppColors.current
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(DarkSurface)
+            .background(c.surface)
             .padding(32.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Icon(
                 Icons.Default.EmojiEvents, contentDescription = null,
-                tint = TextSecondary, modifier = Modifier.size(48.dp)
+                tint = c.textSecondary, modifier = Modifier.size(48.dp)
             )
             Text(
                 "Knockout Bracket",
-                color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp
+                color = c.textPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp
             )
             Text(
                 when {
@@ -487,7 +486,7 @@ private fun BracketEmptyState(canResolve: Boolean, groupComplete: Boolean) {
                     groupComplete  -> "Knockout stage has not been set up yet."
                     else           -> "Knockout fixtures will appear here once the group stage completes."
                 },
-                color = TextSecondary, fontSize = 13.sp, textAlign = TextAlign.Center
+                color = c.textSecondary, fontSize = 13.sp, textAlign = TextAlign.Center
             )
         }
     }

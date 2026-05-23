@@ -65,19 +65,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nitish.cricketscoringapp.domain.model.TournamentTeam
-import com.nitish.cricketscoringapp.ui.theme.CricketRed
-import com.nitish.cricketscoringapp.ui.theme.DarkBg
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface2
-import com.nitish.cricketscoringapp.ui.theme.DividerColor
-import com.nitish.cricketscoringapp.ui.theme.EmeraldContainer
-import com.nitish.cricketscoringapp.ui.theme.EmeraldPrimary
-import com.nitish.cricketscoringapp.ui.theme.GoldContainer
-import com.nitish.cricketscoringapp.ui.theme.GoldPrimary
-import com.nitish.cricketscoringapp.ui.theme.OutlineColor
-import com.nitish.cricketscoringapp.ui.theme.TextPrimary
-import com.nitish.cricketscoringapp.ui.theme.TextSecondary
-import com.nitish.cricketscoringapp.ui.theme.TextTertiary
+import com.nitish.cricketscoringapp.ui.theme.*
 import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -87,6 +75,7 @@ fun TeamManagementScreen(
     onTeamClick: (teamId: String) -> Unit,
     viewModel: TeamManagementViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val teams by viewModel.teams.collectAsState()
     val tournament by viewModel.tournament.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
@@ -106,7 +95,7 @@ fun TeamManagementScreen(
     val canAddMore = teams.size < maxTeams
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         snackbarHost = { SnackbarHost(snackbarHost) },
         topBar = {
             TopAppBar(
@@ -116,7 +105,7 @@ fun TeamManagementScreen(
                             "Teams",
                             fontWeight = FontWeight.Black,
                             fontSize = 17.sp,
-                            color = TextPrimary
+                            color = c.textPrimary
                         )
                         tournament?.let {
                             Text(
@@ -131,7 +120,7 @@ fun TeamManagementScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Back", tint = TextSecondary)
+                        Icon(Icons.Default.ArrowBack, "Back", tint = c.textSecondary)
                     }
                 },
                 actions = {
@@ -150,7 +139,7 @@ fun TeamManagementScreen(
                     }
                     Spacer(Modifier.width(12.dp))
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = c.bg)
             )
         },
         floatingActionButton = {
@@ -177,7 +166,7 @@ fun TeamManagementScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(DarkBg)
+                    .background(c.bg)
                     .padding(padding),
                 contentPadding = PaddingValues(
                     start = 16.dp, end = 16.dp, top = 8.dp, bottom = 120.dp
@@ -208,8 +197,8 @@ fun TeamManagementScreen(
     deleteTarget?.let { t ->
         AlertDialog(
             onDismissRequest = { deleteTarget = null },
-            containerColor = DarkSurface,
-            titleContentColor = TextPrimary,
+            containerColor = c.surface,
+            titleContentColor = c.textPrimary,
             title = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -223,7 +212,7 @@ fun TeamManagementScreen(
                 Text(
                     "Remove \"${t.name}\" and all its players from this tournament?",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
+                    color = c.textSecondary
                 )
             },
             confirmButton = {
@@ -234,7 +223,7 @@ fun TeamManagementScreen(
             },
             dismissButton = {
                 TextButton(onClick = { deleteTarget = null }) {
-                    Text("Cancel", color = TextSecondary)
+                    Text("Cancel", color = c.textSecondary)
                 }
             }
         )
@@ -249,14 +238,15 @@ private fun TeamCard(
     onClick: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val c = LocalAppColors.current
     val (avatarBg, avatarFg) = teamColors(team.name)
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(DarkSurface)
-            .border(1.dp, OutlineColor, RoundedCornerShape(14.dp))
+            .background(c.surface)
+            .border(1.dp, c.outline, RoundedCornerShape(14.dp))
             .clickable(onClick = onClick)
     ) {
         Row(
@@ -287,7 +277,7 @@ private fun TeamCard(
                     team.name,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary,
+                    color = c.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -296,7 +286,7 @@ private fun TeamCard(
                     Text(
                         team.homeGround,
                         style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary,
+                        color = c.textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -326,7 +316,7 @@ private fun TeamCard(
                 Icon(
                     Icons.Default.Delete,
                     "Remove team",
-                    tint = TextTertiary,
+                    tint = c.textTertiary,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -341,6 +331,7 @@ private fun AddTeamDialog(
     onDismiss: () -> Unit,
     onConfirm: (name: String, shortName: String, homeGround: String) -> Unit
 ) {
+    val c = LocalAppColors.current
     var name by remember { mutableStateOf("") }
     var shortName by remember { mutableStateOf("") }
     var ground by remember { mutableStateOf("") }
@@ -348,8 +339,8 @@ private fun AddTeamDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = DarkSurface,
-        titleContentColor = TextPrimary,
+        containerColor = c.surface,
+        titleContentColor = c.textPrimary,
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -363,12 +354,12 @@ private fun AddTeamDialog(
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 val fieldColors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = EmeraldPrimary,
-                    unfocusedBorderColor = OutlineColor,
+                    unfocusedBorderColor = c.outline,
                     focusedLabelColor = EmeraldPrimary,
-                    unfocusedLabelColor = TextSecondary,
+                    unfocusedLabelColor = c.textSecondary,
                     cursorColor = EmeraldPrimary,
-                    focusedTextColor = TextPrimary,
-                    unfocusedTextColor = TextPrimary,
+                    focusedTextColor = c.textPrimary,
+                    unfocusedTextColor = c.textPrimary,
                     errorBorderColor = CricketRed
                 )
                 OutlinedTextField(
@@ -386,7 +377,7 @@ private fun AddTeamDialog(
                     value = shortName,
                     onValueChange = { if (it.length <= 4) shortName = it.uppercase() },
                     label = { Text("Short Name (max 4)") },
-                    placeholder = { Text("e.g. MUM", color = TextTertiary) },
+                    placeholder = { Text("e.g. MUM", color = c.textTertiary) },
                     singleLine = true,
                     colors = fieldColors,
                     modifier = Modifier.fillMaxWidth()
@@ -415,7 +406,7 @@ private fun AddTeamDialog(
             ) { Text("Add", fontWeight = FontWeight.Bold) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel", color = TextSecondary) }
+            TextButton(onClick = onDismiss) { Text("Cancel", color = c.textSecondary) }
         }
     )
 }
@@ -424,6 +415,7 @@ private fun AddTeamDialog(
 
 @Composable
 private fun TeamEmptyState(modifier: Modifier = Modifier, onAdd: () -> Unit) {
+    val c = LocalAppColors.current
     Column(
         modifier = modifier.padding(horizontal = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -439,12 +431,12 @@ private fun TeamEmptyState(modifier: Modifier = Modifier, onAdd: () -> Unit) {
             Icon(Icons.Default.Group, null, tint = EmeraldPrimary, modifier = Modifier.size(48.dp))
         }
         Spacer(Modifier.height(20.dp))
-        Text("No Teams Yet", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
+        Text("No Teams Yet", style = MaterialTheme.typography.titleMedium, color = c.textPrimary, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         Text(
             "Add teams to the tournament. Each team can then have players registered.",
             style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary,
+            color = c.textSecondary,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(24.dp))

@@ -73,25 +73,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nitish.cricketscoringapp.domain.model.Match
 import com.nitish.cricketscoringapp.domain.model.MatchStatus
-import com.nitish.cricketscoringapp.ui.theme.CricketBlue
-import com.nitish.cricketscoringapp.ui.theme.CricketRed
-import com.nitish.cricketscoringapp.ui.theme.CricketRedDim
-import com.nitish.cricketscoringapp.ui.theme.DarkBg
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface2
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface3
-import com.nitish.cricketscoringapp.ui.theme.DividerColor
-import com.nitish.cricketscoringapp.ui.theme.DoneGreen
-import com.nitish.cricketscoringapp.ui.theme.EmeraldContainer
-import com.nitish.cricketscoringapp.ui.theme.EmeraldDark
-import com.nitish.cricketscoringapp.ui.theme.EmeraldPrimary
-import com.nitish.cricketscoringapp.ui.theme.GoldContainer
-import com.nitish.cricketscoringapp.ui.theme.GoldPrimary
-import com.nitish.cricketscoringapp.ui.theme.LiveRed
-import com.nitish.cricketscoringapp.ui.theme.OutlineColor
-import com.nitish.cricketscoringapp.ui.theme.TextPrimary
-import com.nitish.cricketscoringapp.ui.theme.TextSecondary
-import com.nitish.cricketscoringapp.ui.theme.TextTertiary
+import com.nitish.cricketscoringapp.ui.theme.*
 import java.util.Calendar
 import kotlin.math.abs
 
@@ -105,6 +87,7 @@ fun HomeScreen(
     onTournaments: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val state by viewModel.uiState.collectAsState()
     var showSignOutDialog by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -127,7 +110,7 @@ fun HomeScreen(
     }
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         topBar = {
             DashboardTopBar(
                 userName = state.userName,
@@ -151,7 +134,7 @@ fun HomeScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(DarkBg)
+                .background(c.bg)
                 .padding(padding),
             contentPadding = PaddingValues(bottom = 100.dp)
         ) {
@@ -239,7 +222,7 @@ fun HomeScreen(
                             Text(
                                 "No matches in this category",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = TextSecondary
+                                color = c.textSecondary
                             )
                         }
                     }
@@ -283,6 +266,7 @@ private fun DashboardTopBar(
     onSignOut: () -> Unit,
     onPlayerStats: () -> Unit = {}
 ) {
+    val c = LocalAppColors.current
     TopAppBar(
         title = {
             Row(
@@ -310,7 +294,7 @@ private fun DashboardTopBar(
                         "Cricket Scorer",
                         fontWeight = FontWeight.Black,
                         fontSize = 18.sp,
-                        color = TextPrimary
+                        color = c.textPrimary
                     )
                     Text(
                         if (isGuest) "Guest mode" else "Live Match Tracker",
@@ -362,13 +346,13 @@ private fun DashboardTopBar(
                 }
                 Spacer(Modifier.width(4.dp))
                 IconButton(onClick = onSignOut) {
-                    Icon(Icons.Default.Logout, "Sign Out", tint = TextSecondary)
+                    Icon(Icons.Default.Logout, "Sign Out", tint = c.textSecondary)
                 }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = DarkBg,
-            titleContentColor = TextPrimary
+            containerColor = c.bg,
+            titleContentColor = c.textPrimary
         )
     )
 }
@@ -377,6 +361,7 @@ private fun DashboardTopBar(
 
 @Composable
 private fun GreetingBanner(userName: String, isGuest: Boolean = false, onSignIn: () -> Unit = {}) {
+    val c = LocalAppColors.current
     val greeting = remember {
         val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         when {
@@ -394,10 +379,10 @@ private fun GreetingBanner(userName: String, isGuest: Boolean = false, onSignIn:
             .clip(RoundedCornerShape(18.dp))
             .background(
                 Brush.linearGradient(
-                    listOf(Color(0xFF0D2818), Color(0xFF101E30), DarkBg)
+                    listOf(Color(0xFF0D2818), Color(0xFF101E30), c.bg)
                 )
             )
-            .border(1.dp, OutlineColor, RoundedCornerShape(18.dp))
+            .border(1.dp, c.outline, RoundedCornerShape(18.dp))
             .padding(horizontal = 20.dp, vertical = 18.dp)
     ) {
         Row(
@@ -409,14 +394,14 @@ private fun GreetingBanner(userName: String, isGuest: Boolean = false, onSignIn:
                 Text(
                     "$greeting,",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
+                    color = c.textSecondary
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
                     userName.ifBlank { "Cricketer" },
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Black,
-                    color = TextPrimary
+                    color = c.textPrimary
                 )
                 Spacer(Modifier.height(8.dp))
                 if (isGuest) {
@@ -479,11 +464,12 @@ private fun StatsRow(
 
 @Composable
 private fun StatChip(label: String, value: String, color: Color, modifier: Modifier = Modifier) {
+    val c = LocalAppColors.current
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(14.dp))
-            .background(DarkSurface2)
-            .border(1.dp, OutlineColor, RoundedCornerShape(14.dp))
+            .background(c.surface2)
+            .border(1.dp, c.outline, RoundedCornerShape(14.dp))
             .padding(vertical = 14.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -500,7 +486,7 @@ private fun StatChip(label: String, value: String, color: Color, modifier: Modif
             Text(
                 label,
                 style = MaterialTheme.typography.labelSmall,
-                color = TextSecondary,
+                color = c.textSecondary,
                 letterSpacing = 0.5.sp
             )
         }
@@ -517,6 +503,7 @@ private fun SectionHeader(
     accentColor: Color = EmeraldPrimary,
     showLiveDot: Boolean = false
 ) {
+    val c = LocalAppColors.current
     val infiniteTransition = rememberInfiniteTransition(label = "section_pulse")
     val dotAlpha by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -555,7 +542,7 @@ private fun SectionHeader(
                 title,
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Black,
-                color = TextPrimary,
+                color = c.textPrimary,
                 letterSpacing = 1.sp
             )
         }
@@ -587,6 +574,7 @@ private fun MatchFilterTabs(
     onTabSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val c = LocalAppColors.current
     val tabs = listOf(
         "All",
         if (liveCount > 0) "Active ($liveCount)" else "Active",
@@ -596,8 +584,8 @@ private fun MatchFilterTabs(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(DarkSurface)
-            .border(1.dp, OutlineColor, RoundedCornerShape(12.dp))
+            .background(c.surface)
+            .border(1.dp, c.outline, RoundedCornerShape(12.dp))
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -628,7 +616,7 @@ private fun MatchFilterTabs(
                     label,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                    color = if (isSelected) accentColor else TextSecondary,
+                    color = if (isSelected) accentColor else c.textSecondary,
                     maxLines = 1
                 )
             }
@@ -640,11 +628,12 @@ private fun MatchFilterTabs(
 
 @Composable
 private fun LiveMatchCard(match: Match, onClick: () -> Unit) {
+    val c = LocalAppColors.current
     OutlinedCard(
         modifier = Modifier
             .width(260.dp)
             .clickable(onClick = onClick),
-        colors = CardDefaults.outlinedCardColors(containerColor = DarkSurface2),
+        colors = CardDefaults.outlinedCardColors(containerColor = c.surface2),
         shape = RoundedCornerShape(18.dp),
         border = BorderStroke(1.dp, LiveRed.copy(alpha = 0.4f))
     ) {
@@ -658,7 +647,7 @@ private fun LiveMatchCard(match: Match, onClick: () -> Unit) {
                 Text(
                     "${match.totalOvers} Ov · T${match.playersPerTeam}",
                     style = MaterialTheme.typography.labelSmall,
-                    color = TextSecondary,
+                    color = c.textSecondary,
                     fontSize = 10.sp
                 )
             }
@@ -667,19 +656,19 @@ private fun LiveMatchCard(match: Match, onClick: () -> Unit) {
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Spacer(Modifier.width(38.dp))
-                Box(Modifier.weight(1f).height(0.5.dp).background(DividerColor))
+                Box(Modifier.weight(1f).height(0.5.dp).background(c.divider))
                 Text(
                     "  vs  ",
                     style = MaterialTheme.typography.labelSmall,
-                    color = TextTertiary,
+                    color = c.textTertiary,
                     fontSize = 10.sp
                 )
-                Box(Modifier.weight(1f).height(0.5.dp).background(DividerColor))
+                Box(Modifier.weight(1f).height(0.5.dp).background(c.divider))
             }
             Spacer(Modifier.height(6.dp))
             TeamRow(teamName = match.team2Name)
             Spacer(Modifier.height(14.dp))
-            HorizontalDivider(color = DividerColor, thickness = 0.5.dp)
+            HorizontalDivider(color = c.divider, thickness = 0.5.dp)
             Spacer(Modifier.height(10.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -689,7 +678,7 @@ private fun LiveMatchCard(match: Match, onClick: () -> Unit) {
                 Text(
                     inningsLabel(match),
                     style = MaterialTheme.typography.labelSmall,
-                    color = TextSecondary,
+                    color = c.textSecondary,
                     fontSize = 10.sp,
                     modifier = Modifier.weight(1f),
                     maxLines = 1,
@@ -721,6 +710,7 @@ private fun LiveMatchCard(match: Match, onClick: () -> Unit) {
 
 @Composable
 private fun CricbuzzMatchCard(match: Match, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val c = LocalAppColors.current
     val (accentColor, statusLabel, bgContainer) = when (match.status) {
         MatchStatus.INNINGS_1, MatchStatus.INNINGS_2 -> Triple(LiveRed, "LIVE", CricketRedDim)
         MatchStatus.TOSS     -> Triple(GoldPrimary, "TOSS", GoldContainer)
@@ -731,8 +721,8 @@ private fun CricbuzzMatchCard(match: Match, onClick: () -> Unit, modifier: Modif
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(DarkSurface)
-            .border(1.dp, OutlineColor, RoundedCornerShape(16.dp))
+            .background(c.surface)
+            .border(1.dp, c.outline, RoundedCornerShape(16.dp))
             .clickable(onClick = onClick)
     ) {
         Row(modifier = Modifier.height(IntrinsicSize.Min)) {
@@ -765,13 +755,13 @@ private fun CricbuzzMatchCard(match: Match, onClick: () -> Unit, modifier: Modif
                         StatusPill(label = statusLabel, color = accentColor, bgColor = bgContainer)
                         Box(
                             modifier = Modifier
-                                .background(DarkSurface3, RoundedCornerShape(4.dp))
+                                .background(c.surface3, RoundedCornerShape(4.dp))
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
                                 "${match.totalOvers}-over · ${match.playersPerTeam}a-side",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = TextSecondary,
+                                color = c.textSecondary,
                                 fontSize = 10.sp
                             )
                         }
@@ -779,7 +769,7 @@ private fun CricbuzzMatchCard(match: Match, onClick: () -> Unit, modifier: Modif
                     Text(
                         formatDate(match.createdAt),
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextTertiary,
+                        color = c.textTertiary,
                         fontSize = 10.sp
                     )
                 }
@@ -791,20 +781,20 @@ private fun CricbuzzMatchCard(match: Match, onClick: () -> Unit, modifier: Modif
                 Spacer(Modifier.height(6.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Spacer(Modifier.width(38.dp))
-                    Box(Modifier.weight(1f).height(0.5.dp).background(DividerColor))
+                    Box(Modifier.weight(1f).height(0.5.dp).background(c.divider))
                     Text(
                         "  vs  ",
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextTertiary,
+                        color = c.textTertiary,
                         fontSize = 10.sp
                     )
-                    Box(Modifier.weight(1f).height(0.5.dp).background(DividerColor))
+                    Box(Modifier.weight(1f).height(0.5.dp).background(c.divider))
                 }
                 Spacer(Modifier.height(6.dp))
                 TeamRow(teamName = match.team2Name)
 
                 Spacer(Modifier.height(12.dp))
-                HorizontalDivider(color = DividerColor, thickness = 0.5.dp)
+                HorizontalDivider(color = c.divider, thickness = 0.5.dp)
                 Spacer(Modifier.height(8.dp))
 
                 // Footer
@@ -816,7 +806,7 @@ private fun CricbuzzMatchCard(match: Match, onClick: () -> Unit, modifier: Modif
                     Text(
                         matchFooterText(match),
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextSecondary,
+                        color = c.textSecondary,
                         modifier = Modifier.weight(1f),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -850,6 +840,7 @@ private fun CricbuzzMatchCard(match: Match, onClick: () -> Unit, modifier: Modif
 
 @Composable
 private fun TeamRow(teamName: String) {
+    val c = LocalAppColors.current
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -859,7 +850,7 @@ private fun TeamRow(teamName: String) {
             teamName,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold,
-            color = TextPrimary,
+            color = c.textPrimary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f)
@@ -970,6 +961,7 @@ private fun StatusPill(label: String, color: Color, bgColor: Color) {
 
 @Composable
 private fun EmptyState() {
+    val c = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -994,14 +986,14 @@ private fun EmptyState() {
         Text(
             "No matches yet",
             style = MaterialTheme.typography.titleMedium,
-            color = TextPrimary,
+            color = c.textPrimary,
             fontWeight = FontWeight.Bold
         )
         Spacer(Modifier.height(8.dp))
         Text(
             "Tap + New Match to start scoring\nyour first cricket match.",
             style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary,
+            color = c.textSecondary,
             textAlign = TextAlign.Center
         )
     }
@@ -1016,10 +1008,11 @@ private fun SignOutDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val c = LocalAppColors.current
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = DarkSurface,
-        titleContentColor = TextPrimary,
+        containerColor = c.surface,
+        titleContentColor = c.textPrimary,
         title = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -1040,15 +1033,15 @@ private fun SignOutDialog(
                     Text(
                         "You're using the app as a guest. Sign in with Google to sync your matches across devices and keep your data safe.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary
+                        color = c.textSecondary
                     )
                 } else {
                     if (userName.isNotBlank()) {
-                        Text("Signed in as", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                        Text("Signed in as", style = MaterialTheme.typography.bodySmall, color = c.textSecondary)
                         Text(
                             userName,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = TextPrimary,
+                            color = c.textPrimary,
                             fontWeight = FontWeight.SemiBold
                         )
                         Spacer(Modifier.height(4.dp))
@@ -1056,7 +1049,7 @@ private fun SignOutDialog(
                     Text(
                         "Are you sure you want to sign out?",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary
+                        color = c.textSecondary
                     )
                 }
             }
@@ -1074,7 +1067,7 @@ private fun SignOutDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = TextSecondary)
+                Text("Cancel", color = c.textSecondary)
             }
         }
     )
@@ -1084,13 +1077,14 @@ private fun SignOutDialog(
 
 @Composable
 private fun TournamentEntryCard(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val c = LocalAppColors.current
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(
                 Brush.linearGradient(
-                    listOf(Color(0xFF2A1A00), Color(0xFF1C1A0A), DarkBg)
+                    listOf(Color(0xFF2A1A00), Color(0xFF1C1A0A), c.bg)
                 )
             )
             .border(1.dp, GoldPrimary.copy(alpha = 0.35f), RoundedCornerShape(16.dp))
@@ -1132,7 +1126,7 @@ private fun TournamentEntryCard(onClick: () -> Unit, modifier: Modifier = Modifi
                     Text(
                         "Manage league & knockout tournaments",
                         style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary,
+                        color = c.textSecondary,
                         fontSize = 11.sp
                     )
                 }

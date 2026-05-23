@@ -24,6 +24,7 @@ interface MatchRepository {
 
     fun getSavedTeams(): Flow<List<SavedTeam>>
     suspend fun saveTeam(team: SavedTeam)
+    suspend fun deleteTeam(teamName: String)
 
     fun getAllPlayers(): Flow<List<Player>>
     fun getAllBalls(): Flow<List<Ball>>

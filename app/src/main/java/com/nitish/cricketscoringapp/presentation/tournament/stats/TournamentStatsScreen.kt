@@ -44,17 +44,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nitish.cricketscoringapp.domain.model.PlayerStatLine
+import com.nitish.cricketscoringapp.ui.theme.*
 
-private val DarkBg        = Color(0xFF0A0E14)
-private val DarkSurface   = Color(0xFF131920)
-private val DarkSurface2  = Color(0xFF1A2230)
-private val EmeraldPrimary = Color(0xFF00C853)
-private val GoldPrimary   = Color(0xFFFFD740)
 private val OrangeCap     = Color(0xFFFF6D00)
 private val PurpleCap     = Color(0xFF9C27B0)
-private val TextPrimary   = Color(0xFFF0F4FF)
-private val TextSecondary = Color(0xFF8A9BB5)
-private val OutlineColor  = Color(0xFF2A3A52)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,24 +55,25 @@ fun TournamentStatsScreen(
     onBack: () -> Unit,
     viewModel: TournamentStatsViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         topBar = {
             TopAppBar(
-                title = { Text("Tournament Statistics", color = TextPrimary, fontWeight = FontWeight.Bold) },
+                title = { Text("Tournament Statistics", color = c.textPrimary, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = TextPrimary)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = c.textPrimary)
                     }
                 },
                 actions = {
                     IconButton(onClick = { viewModel.refresh() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = TextSecondary)
+                        Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = c.textSecondary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkSurface)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = c.surface)
             )
         }
     ) { padding ->
@@ -91,7 +85,7 @@ fun TournamentStatsScreen(
             }
             uiState.error != null -> {
                 Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                    Text(uiState.error ?: "Error", color = TextSecondary, textAlign = TextAlign.Center)
+                    Text(uiState.error ?: "Error", color = c.textSecondary, textAlign = TextAlign.Center)
                 }
             }
             uiState.stats != null -> {
@@ -210,12 +204,13 @@ private fun CapHeroCard(
     player: PlayerStatLine?,
     modifier: Modifier = Modifier
 ) {
+    val c = LocalAppColors.current
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
             .background(
                 Brush.verticalGradient(
-                    listOf(capColor.copy(alpha = 0.3f), DarkSurface)
+                    listOf(capColor.copy(alpha = 0.3f), c.surface)
                 )
             )
             .border(1.dp, capColor.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
@@ -242,17 +237,17 @@ private fun CapHeroCard(
             if (player != null) {
                 Text(
                     player.playerName,
-                    color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp,
+                    color = c.textPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp,
                     maxLines = 1, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center
                 )
-                Text(player.teamName, color = TextSecondary, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(player.teamName, color = c.textSecondary, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text(player.primaryValue, color = capColor, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold)
                 if (player.secondaryValue.isNotBlank()) {
-                    Text(player.secondaryValue, color = TextSecondary, fontSize = 11.sp)
+                    Text(player.secondaryValue, color = c.textSecondary, fontSize = 11.sp)
                 }
             } else {
-                Text(subtitle, color = TextSecondary, fontSize = 11.sp, textAlign = TextAlign.Center)
-                Text("No data yet", color = TextSecondary, fontSize = 12.sp)
+                Text(subtitle, color = c.textSecondary, fontSize = 11.sp, textAlign = TextAlign.Center)
+                Text("No data yet", color = c.textSecondary, fontSize = 12.sp)
             }
         }
     }
@@ -265,11 +260,12 @@ private fun LeaderboardSection(
     accentColor: Color,
     entries: List<PlayerStatLine>
 ) {
+    val c = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(DarkSurface)
+            .background(c.surface)
     ) {
         // Section header
         Row(
@@ -282,7 +278,7 @@ private fun LeaderboardSection(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Box(Modifier.width(3.dp).height(16.dp).clip(RoundedCornerShape(1.5.dp)).background(accentColor))
-                Text(title, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(title, color = c.textPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
             Text(valueLabel, color = accentColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
         }
@@ -305,11 +301,12 @@ private fun LeaderboardRow(
     accentColor: Color,
     isLast: Boolean
 ) {
+    val c = LocalAppColors.current
     val rankColor = when (rank) {
         1 -> GoldPrimary
         2 -> Color(0xFFB0BEC5)
         3 -> Color(0xFFCD7F32)
-        else -> TextSecondary
+        else -> c.textSecondary
     }
     Column {
         Row(
@@ -324,7 +321,7 @@ private fun LeaderboardRow(
                 modifier = Modifier
                     .size(28.dp)
                     .clip(CircleShape)
-                    .background(if (rank <= 3) rankColor.copy(alpha = 0.15f) else DarkSurface2),
+                    .background(if (rank <= 3) rankColor.copy(alpha = 0.15f) else c.surface2),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -356,14 +353,14 @@ private fun LeaderboardRow(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     entry.playerName,
-                    color = TextPrimary,
+                    color = c.textPrimary,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 if (entry.teamName.isNotBlank()) {
-                    Text(entry.teamName, color = TextSecondary, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(entry.teamName, color = c.textSecondary, fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
 
@@ -371,31 +368,32 @@ private fun LeaderboardRow(
             Column(horizontalAlignment = Alignment.End) {
                 Text(entry.primaryValue, color = accentColor, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 if (entry.secondaryValue.isNotBlank()) {
-                    Text(entry.secondaryValue, color = TextSecondary, fontSize = 10.sp)
+                    Text(entry.secondaryValue, color = c.textSecondary, fontSize = 10.sp)
                 }
             }
         }
         if (!isLast) {
-            HorizontalDivider(thickness = 0.5.dp, color = OutlineColor)
+            HorizontalDivider(thickness = 0.5.dp, color = c.outline)
         }
     }
 }
 
 @Composable
 private fun StatsEmptyState() {
+    val c = LocalAppColors.current
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(DarkSurface)
+            .background(c.surface)
             .padding(40.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("No Stats Yet", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text("No Stats Yet", color = c.textPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Text(
                 "Stats will appear here once matches are completed in this tournament.",
-                color = TextSecondary, fontSize = 13.sp, textAlign = TextAlign.Center
+                color = c.textSecondary, fontSize = 13.sp, textAlign = TextAlign.Center
             )
         }
     }

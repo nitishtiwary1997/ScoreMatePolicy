@@ -11,4 +11,7 @@ interface SavedTeamDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertSavedTeam(team: SavedTeamEntity)
+
+    @Query("DELETE FROM saved_teams WHERE name = :name")
+    suspend fun deleteSavedTeam(name: String)
 }

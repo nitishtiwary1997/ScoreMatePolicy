@@ -39,6 +39,7 @@ fun LoginScreen(
     onSignedIn: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -53,7 +54,7 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkBg),
+            .background(c.bg),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -88,7 +89,7 @@ fun LoginScreen(
                 "Cricket Scorer",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Black,
-                color = TextPrimary
+                color = c.textPrimary
             )
             Spacer(Modifier.height(6.dp))
             Text(
@@ -101,7 +102,7 @@ fun LoginScreen(
             Text(
                 "Sign in to sync your matches across\ndevices and keep your data safe.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = TextSecondary,
+                color = c.textSecondary,
                 textAlign = TextAlign.Center
             )
 
@@ -123,12 +124,12 @@ fun LoginScreen(
                 enabled = !state.isLoading,
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = DarkSurface,
-                    contentColor = TextPrimary,
-                    disabledContainerColor = DarkSurface2,
-                    disabledContentColor = TextSecondary
+                    containerColor = c.surface,
+                    contentColor = c.textPrimary,
+                    disabledContainerColor = c.surface2,
+                    disabledContentColor = c.textSecondary
                 ),
-                border = BorderStroke(1.dp, OutlineColor),
+                border = BorderStroke(1.dp, c.outline),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp)
@@ -160,13 +161,13 @@ fun LoginScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                HorizontalDivider(modifier = Modifier.weight(1f), color = OutlineColor)
+                HorizontalDivider(modifier = Modifier.weight(1f), color = c.outline)
                 Text(
                     "  or  ",
                     style = MaterialTheme.typography.bodySmall,
-                    color = TextSecondary
+                    color = c.textSecondary
                 )
-                HorizontalDivider(modifier = Modifier.weight(1f), color = OutlineColor)
+                HorizontalDivider(modifier = Modifier.weight(1f), color = c.outline)
             }
 
             Spacer(Modifier.height(14.dp))
@@ -176,8 +177,8 @@ fun LoginScreen(
                 onClick = { viewModel.continueAsGuest() },
                 enabled = !state.isLoading,
                 shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = TextSecondary),
-                border = BorderStroke(1.dp, OutlineColor),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = c.textSecondary),
+                border = BorderStroke(1.dp, c.outline),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp)
@@ -186,7 +187,7 @@ fun LoginScreen(
                     "Continue as Guest",
                     fontWeight = FontWeight.Medium,
                     fontSize = 15.sp,
-                    color = TextSecondary
+                    color = c.textSecondary
                 )
             }
 
@@ -194,7 +195,7 @@ fun LoginScreen(
             Text(
                 "Guest data is stored only on this device\nand won't sync to the cloud.",
                 style = MaterialTheme.typography.labelSmall,
-                color = TextTertiary,
+                color = c.textTertiary,
                 textAlign = TextAlign.Center,
                 fontSize = 11.sp
             )

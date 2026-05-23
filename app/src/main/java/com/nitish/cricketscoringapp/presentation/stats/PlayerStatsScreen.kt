@@ -57,19 +57,12 @@ import com.nitish.cricketscoringapp.domain.model.PlayerCareerStats
 import com.nitish.cricketscoringapp.ui.theme.CricketBlue
 import com.nitish.cricketscoringapp.ui.theme.CricketPurple
 import com.nitish.cricketscoringapp.ui.theme.CricketRed
-import com.nitish.cricketscoringapp.ui.theme.DarkBg
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface2
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface3
 import com.nitish.cricketscoringapp.ui.theme.EmeraldContainer
 import com.nitish.cricketscoringapp.ui.theme.EmeraldDark
 import com.nitish.cricketscoringapp.ui.theme.EmeraldPrimary
 import com.nitish.cricketscoringapp.ui.theme.GoldPrimary
 import com.nitish.cricketscoringapp.ui.theme.LiveRed
-import com.nitish.cricketscoringapp.ui.theme.OutlineColor
-import com.nitish.cricketscoringapp.ui.theme.TextPrimary
-import com.nitish.cricketscoringapp.ui.theme.TextSecondary
-import com.nitish.cricketscoringapp.ui.theme.TextTertiary
+import com.nitish.cricketscoringapp.ui.theme.LocalAppColors
 import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,10 +71,11 @@ fun PlayerStatsScreen(
     onBack: () -> Unit,
     viewModel: PlayerStatsViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val state by viewModel.uiState.collectAsState()
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         topBar = {
             TopAppBar(
                 title = {
@@ -90,28 +84,28 @@ fun PlayerStatsScreen(
                             "Player Performance",
                             fontWeight = FontWeight.Black,
                             fontSize = 17.sp,
-                            color = TextPrimary
+                            color = c.textPrimary
                         )
                         Text(
                             "Career stats across all matches",
                             fontSize = 10.sp,
-                            color = TextSecondary
+                            color = c.textSecondary
                         )
                     }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = TextPrimary)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = c.textPrimary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = c.bg)
             )
         }
     ) { padding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(DarkBg)
+                .background(c.bg)
                 .padding(padding),
             contentPadding = PaddingValues(bottom = 24.dp)
         ) {
@@ -203,6 +197,7 @@ fun PlayerStatsScreen(
 
 @Composable
 private fun OverallStatsCard(stats: OverallStats, modifier: Modifier = Modifier) {
+    val c = LocalAppColors.current
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -212,7 +207,7 @@ private fun OverallStatsCard(stats: OverallStats, modifier: Modifier = Modifier)
                     listOf(Color(0xFF0B2010), Color(0xFF0D1C30), Color(0xFF0A0E14))
                 )
             )
-            .border(1.dp, OutlineColor, RoundedCornerShape(18.dp))
+            .border(1.dp, c.outline, RoundedCornerShape(18.dp))
     ) {
         // Header row
         Row(
@@ -250,7 +245,7 @@ private fun OverallStatsCard(stats: OverallStats, modifier: Modifier = Modifier)
                     "OVERALL PERFORMANCE",
                     fontWeight = FontWeight.Black,
                     fontSize = 12.sp,
-                    color = TextPrimary,
+                    color = c.textPrimary,
                     letterSpacing = 0.8.sp
                 )
             }
@@ -269,7 +264,7 @@ private fun OverallStatsCard(stats: OverallStats, modifier: Modifier = Modifier)
             }
         }
 
-        HorizontalDivider(color = OutlineColor.copy(alpha = 0.6f), thickness = 0.5.dp)
+        HorizontalDivider(color = c.outline.copy(alpha = 0.6f), thickness = 0.5.dp)
 
         // Primary big stats row
         Row(
@@ -301,7 +296,7 @@ private fun OverallStatsCard(stats: OverallStats, modifier: Modifier = Modifier)
             )
         }
 
-        HorizontalDivider(color = OutlineColor.copy(alpha = 0.6f), thickness = 0.5.dp)
+        HorizontalDivider(color = c.outline.copy(alpha = 0.6f), thickness = 0.5.dp)
 
         // Secondary stats row — Strike Rate · Economy · 4s · 6s
         Row(
@@ -336,7 +331,7 @@ private fun OverallStatsCard(stats: OverallStats, modifier: Modifier = Modifier)
             )
         }
 
-        HorizontalDivider(color = OutlineColor.copy(alpha = 0.6f), thickness = 0.5.dp)
+        HorizontalDivider(color = c.outline.copy(alpha = 0.6f), thickness = 0.5.dp)
 
         // Leaders row
         Column(
@@ -371,6 +366,7 @@ private fun BigStatCell(
     subLabel: String = "",
     modifier: Modifier = Modifier
 ) {
+    val c = LocalAppColors.current
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -386,7 +382,7 @@ private fun BigStatCell(
         Text(
             label,
             style = MaterialTheme.typography.labelSmall,
-            color = TextSecondary,
+            color = c.textSecondary,
             fontSize = 10.sp,
             textAlign = TextAlign.Center,
             letterSpacing = 0.3.sp
@@ -412,6 +408,7 @@ private fun SecondaryStatCell(
     color: Color,
     modifier: Modifier = Modifier
 ) {
+    val c = LocalAppColors.current
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
@@ -430,7 +427,7 @@ private fun SecondaryStatCell(
         Text(
             label,
             style = MaterialTheme.typography.labelSmall,
-            color = TextSecondary,
+            color = c.textSecondary,
             fontSize = 9.sp,
             letterSpacing = 0.2.sp,
             textAlign = TextAlign.Center
@@ -447,6 +444,7 @@ private fun LeaderRow(
     statValue: String,
     color: Color
 ) {
+    val c = LocalAppColors.current
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -456,14 +454,14 @@ private fun LeaderRow(
         Text(
             role,
             style = MaterialTheme.typography.labelSmall,
-            color = TextSecondary,
+            color = c.textSecondary,
             modifier = Modifier.width(70.dp),
             fontSize = 11.sp
         )
         Text(
             name,
             style = MaterialTheme.typography.labelMedium,
-            color = TextPrimary,
+            color = c.textPrimary,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.weight(1f),
             maxLines = 1,
@@ -489,11 +487,12 @@ private fun LeaderRow(
 
 @Composable
 private fun VerticalDividerLine() {
+    val c = LocalAppColors.current
     Box(
         modifier = Modifier
             .width(0.5.dp)
             .height(48.dp)
-            .background(OutlineColor)
+            .background(c.outline)
     )
 }
 
@@ -508,27 +507,28 @@ private fun String.firstName(): String = split(" ").firstOrNull() ?: this
 
 @Composable
 private fun SearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier) {
+    val c = LocalAppColors.current
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(DarkSurface2)
-            .border(1.dp, OutlineColor, RoundedCornerShape(12.dp))
+            .background(c.surface2)
+            .border(1.dp, c.outline, RoundedCornerShape(12.dp))
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Icon(Icons.Default.Search, null, tint = TextSecondary, modifier = Modifier.size(18.dp))
+        Icon(Icons.Default.Search, null, tint = c.textSecondary, modifier = Modifier.size(18.dp))
         BasicTextField(
             value = query,
             onValueChange = onQueryChange,
             modifier = Modifier.weight(1f),
-            textStyle = MaterialTheme.typography.bodyMedium.copy(color = TextPrimary),
+            textStyle = MaterialTheme.typography.bodyMedium.copy(color = c.textPrimary),
             cursorBrush = SolidColor(EmeraldPrimary),
             singleLine = true,
             decorationBox = { inner ->
                 if (query.isEmpty()) {
-                    Text("Search player…", color = TextTertiary, style = MaterialTheme.typography.bodyMedium)
+                    Text("Search player…", color = c.textTertiary, style = MaterialTheme.typography.bodyMedium)
                 }
                 inner()
             }
@@ -544,6 +544,7 @@ private fun StatsTabRow(
     onTabSelected: (StatsTab) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val c = LocalAppColors.current
     val tabs = listOf(
         StatsTab.BATTING   to "Batting",
         StatsTab.BOWLING   to "Bowling",
@@ -553,8 +554,8 @@ private fun StatsTabRow(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(DarkSurface)
-            .border(1.dp, OutlineColor, RoundedCornerShape(12.dp))
+            .background(c.surface)
+            .border(1.dp, c.outline, RoundedCornerShape(12.dp))
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -583,7 +584,7 @@ private fun StatsTabRow(
                     label,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                    color = if (isSelected) accent else TextSecondary
+                    color = if (isSelected) accent else c.textSecondary
                 )
             }
         }
@@ -599,6 +600,7 @@ private fun SortChipRow(
     onBowlingSort: (BowlingSort) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val c = LocalAppColors.current
     val scrollState = rememberScrollState()
     Row(
         modifier = modifier
@@ -611,7 +613,7 @@ private fun SortChipRow(
         Text(
             "Sort by",
             style = MaterialTheme.typography.labelSmall,
-            color = TextTertiary,
+            color = c.textTertiary,
             modifier = Modifier.padding(end = 2.dp)
         )
         when (state.selectedTab) {
@@ -635,13 +637,14 @@ private fun SortChipRow(
 
 @Composable
 private fun SortChip(label: String, selected: Boolean, onClick: () -> Unit) {
+    val c = LocalAppColors.current
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(if (selected) EmeraldPrimary.copy(alpha = 0.18f) else DarkSurface2)
+            .background(if (selected) EmeraldPrimary.copy(alpha = 0.18f) else c.surface2)
             .border(
                 1.dp,
-                if (selected) EmeraldPrimary.copy(alpha = 0.5f) else OutlineColor,
+                if (selected) EmeraldPrimary.copy(alpha = 0.5f) else c.outline,
                 RoundedCornerShape(20.dp)
             )
             .clickable(onClick = onClick)
@@ -650,7 +653,7 @@ private fun SortChip(label: String, selected: Boolean, onClick: () -> Unit) {
         Text(
             label,
             style = MaterialTheme.typography.labelSmall,
-            color = if (selected) EmeraldPrimary else TextSecondary,
+            color = if (selected) EmeraldPrimary else c.textSecondary,
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
         )
     }
@@ -660,11 +663,12 @@ private fun SortChip(label: String, selected: Boolean, onClick: () -> Unit) {
 
 @Composable
 private fun PlayerStatCard(rank: Int, stats: PlayerCareerStats, tab: StatsTab, modifier: Modifier = Modifier) {
+    val c = LocalAppColors.current
     val rankColor = when (rank) {
         1 -> GoldPrimary
         2 -> Color(0xFFC0C0C0)
         3 -> Color(0xFFCD7F32)
-        else -> OutlineColor
+        else -> c.outline
     }
     val accentColor = when (tab) {
         StatsTab.BATTING   -> EmeraldPrimary
@@ -681,10 +685,10 @@ private fun PlayerStatCard(rank: Int, stats: PlayerCareerStats, tab: StatsTab, m
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(DarkSurface)
+            .background(c.surface)
             .border(
                 width = if (rank <= 3) 1.5.dp else 1.dp,
-                color = if (rank <= 3) rankColor.copy(alpha = 0.55f) else OutlineColor,
+                color = if (rank <= 3) rankColor.copy(alpha = 0.55f) else c.outline,
                 shape = RoundedCornerShape(16.dp)
             )
     ) {
@@ -709,13 +713,13 @@ private fun PlayerStatCard(rank: Int, stats: PlayerCareerStats, tab: StatsTab, m
                 Box(
                     modifier = Modifier
                         .size(24.dp)
-                        .background(DarkSurface3, CircleShape),
+                        .background(c.surface3, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         "#$rank",
                         fontSize = 9.sp,
-                        color = TextSecondary,
+                        color = c.textSecondary,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -730,7 +734,7 @@ private fun PlayerStatCard(rank: Int, stats: PlayerCareerStats, tab: StatsTab, m
                     stats.player.name,
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
-                    color = TextPrimary,
+                    color = c.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -742,7 +746,7 @@ private fun PlayerStatCard(rank: Int, stats: PlayerCareerStats, tab: StatsTab, m
                     Text(
                         "${stats.matchesPlayed} ${if (stats.matchesPlayed == 1) "match" else "matches"}",
                         fontSize = 11.sp,
-                        color = TextSecondary
+                        color = c.textSecondary
                     )
                 }
             }
@@ -764,7 +768,7 @@ private fun PlayerStatCard(rank: Int, stats: PlayerCareerStats, tab: StatsTab, m
             }
         }
 
-        HorizontalDivider(color = OutlineColor.copy(alpha = 0.5f), thickness = 0.5.dp)
+        HorizontalDivider(color = c.outline.copy(alpha = 0.5f), thickness = 0.5.dp)
 
         // ── Primary Stats ─────────────────────────────────────────────────────
         when (tab) {
@@ -775,7 +779,7 @@ private fun PlayerStatCard(rank: Int, stats: PlayerCareerStats, tab: StatsTab, m
 
         // ── Secondary Chips ───────────────────────────────────────────────────
         if (tab != StatsTab.ALL_ROUND) {
-            HorizontalDivider(color = OutlineColor.copy(alpha = 0.5f), thickness = 0.5.dp)
+            HorizontalDivider(color = c.outline.copy(alpha = 0.5f), thickness = 0.5.dp)
             when (tab) {
                 StatsTab.BATTING -> BattingChips(stats)
                 StatsTab.BOWLING -> BowlingChips(stats)
@@ -838,6 +842,7 @@ private fun BowlingPrimaryStats(stats: PlayerCareerStats) {
 
 @Composable
 private fun AllRoundStats(stats: PlayerCareerStats) {
+    val c = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -857,7 +862,7 @@ private fun AllRoundStats(stats: PlayerCareerStats) {
         ) {
             Text("🏏", fontSize = 15.sp, modifier = Modifier.padding(end = 8.dp))
             Text(stats.totalRuns.toString(), fontWeight = FontWeight.Black, fontSize = 20.sp, color = EmeraldPrimary)
-            Text(" runs", fontSize = 10.sp, color = TextSecondary, modifier = Modifier.weight(1f).padding(top = 4.dp))
+            Text(" runs", fontSize = 10.sp, color = c.textSecondary, modifier = Modifier.weight(1f).padding(top = 4.dp))
             AllRoundChip("HS", stats.highScoreDisplay,       EmeraldPrimary)
             Spacer(Modifier.width(6.dp))
             AllRoundChip("SR", if (stats.totalBalls == 0) "—" else "%.0f".format(stats.strikeRate), CricketBlue)
@@ -878,7 +883,7 @@ private fun AllRoundStats(stats: PlayerCareerStats) {
         ) {
             Text("🎯", fontSize = 15.sp, modifier = Modifier.padding(end = 8.dp))
             Text(stats.wickets.toString(), fontWeight = FontWeight.Black, fontSize = 20.sp, color = LiveRed)
-            Text(" wkts", fontSize = 10.sp, color = TextSecondary, modifier = Modifier.weight(1f).padding(top = 4.dp))
+            Text(" wkts", fontSize = 10.sp, color = c.textSecondary, modifier = Modifier.weight(1f).padding(top = 4.dp))
             AllRoundChip("Best", stats.bestBowlingDisplay, LiveRed)
             Spacer(Modifier.width(6.dp))
             AllRoundChip("Eco", if (stats.ballsBowled == 0) "—" else "%.1f".format(stats.economy), CricketBlue)
@@ -890,9 +895,10 @@ private fun AllRoundStats(stats: PlayerCareerStats) {
 
 @Composable
 private fun AllRoundChip(label: String, value: String, color: Color) {
+    val c = LocalAppColors.current
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(value, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = color)
-        Text(label, fontSize = 9.sp, color = TextTertiary)
+        Text(label, fontSize = 9.sp, color = c.textTertiary)
     }
 }
 
@@ -943,6 +949,7 @@ private fun BowlingChips(stats: PlayerCareerStats) {
 
 @Composable
 private fun SmallStatChip(label: String, value: String, color: Color, modifier: Modifier = Modifier) {
+    val c = LocalAppColors.current
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(9.dp))
@@ -953,12 +960,13 @@ private fun SmallStatChip(label: String, value: String, color: Color, modifier: 
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         Text(value, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp, color = color)
-        Text(label, fontSize = 9.sp, color = TextSecondary, letterSpacing = 0.2.sp)
+        Text(label, fontSize = 9.sp, color = c.textSecondary, letterSpacing = 0.2.sp)
     }
 }
 
 @Composable
 private fun MainStatCell(value: String, label: String, color: Color, modifier: Modifier = Modifier) {
+    val c = LocalAppColors.current
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -975,7 +983,7 @@ private fun MainStatCell(value: String, label: String, color: Color, modifier: M
         Text(
             label,
             style = MaterialTheme.typography.labelSmall,
-            color = TextSecondary,
+            color = c.textSecondary,
             fontSize = 10.sp,
             letterSpacing = 0.5.sp,
             textAlign = TextAlign.Center
@@ -985,11 +993,12 @@ private fun MainStatCell(value: String, label: String, color: Color, modifier: M
 
 @Composable
 private fun StatDivider() {
+    val c = LocalAppColors.current
     Box(
         modifier = Modifier
             .width(0.5.dp)
             .height(44.dp)
-            .background(OutlineColor)
+            .background(c.outline)
     )
 }
 
@@ -1035,6 +1044,7 @@ private fun PlayerAvatar(name: String, size: Int) {
 
 @Composable
 private fun LoadMoreItem(onVisible: () -> Unit) {
+    val c = LocalAppColors.current
     LaunchedEffect(Unit) { onVisible() }
     Box(
         modifier = Modifier
@@ -1051,13 +1061,14 @@ private fun LoadMoreItem(onVisible: () -> Unit) {
                 color = EmeraldPrimary,
                 strokeWidth = 2.dp
             )
-            Text("Loading more players…", fontSize = 12.sp, color = TextSecondary)
+            Text("Loading more players…", fontSize = 12.sp, color = c.textSecondary)
         }
     }
 }
 
 @Composable
 private fun EndOfListItem() {
+    val c = LocalAppColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -1069,18 +1080,18 @@ private fun EndOfListItem() {
             Modifier
                 .width(48.dp)
                 .height(0.5.dp)
-                .background(OutlineColor)
+                .background(c.outline)
         )
         Text(
             "  All players loaded  ",
             fontSize = 11.sp,
-            color = TextTertiary
+            color = c.textTertiary
         )
         Box(
             Modifier
                 .width(48.dp)
                 .height(0.5.dp)
-                .background(OutlineColor)
+                .background(c.outline)
         )
     }
 }
@@ -1089,6 +1100,7 @@ private fun EndOfListItem() {
 
 @Composable
 private fun EmptyStats(tab: StatsTab) {
+    val c = LocalAppColors.current
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -1117,7 +1129,7 @@ private fun EmptyStats(tab: StatsTab) {
             Text(
                 "No stats available",
                 style = MaterialTheme.typography.titleMedium,
-                color = TextPrimary,
+                color = c.textPrimary,
                 fontWeight = FontWeight.Bold
             )
             Text(
@@ -1127,7 +1139,7 @@ private fun EmptyStats(tab: StatsTab) {
                     StatsTab.BATTING -> "No batting data recorded yet."
                 },
                 style = MaterialTheme.typography.bodyMedium,
-                color = TextSecondary,
+                color = c.textSecondary,
                 textAlign = TextAlign.Center
             )
         }

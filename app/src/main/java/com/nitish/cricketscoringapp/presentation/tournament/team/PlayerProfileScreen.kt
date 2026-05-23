@@ -54,16 +54,7 @@ import com.nitish.cricketscoringapp.domain.model.BowlingStyle
 import com.nitish.cricketscoringapp.domain.model.PlayerRole
 import com.nitish.cricketscoringapp.domain.model.TournamentPlayer
 import com.nitish.cricketscoringapp.domain.repository.TournamentRepository
-import com.nitish.cricketscoringapp.ui.theme.DarkBg
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface
-import com.nitish.cricketscoringapp.ui.theme.DividerColor
-import com.nitish.cricketscoringapp.ui.theme.EmeraldContainer
-import com.nitish.cricketscoringapp.ui.theme.EmeraldPrimary
-import com.nitish.cricketscoringapp.ui.theme.GoldPrimary
-import com.nitish.cricketscoringapp.ui.theme.OutlineColor
-import com.nitish.cricketscoringapp.ui.theme.TextPrimary
-import com.nitish.cricketscoringapp.ui.theme.TextSecondary
-import com.nitish.cricketscoringapp.ui.theme.TextTertiary
+import com.nitish.cricketscoringapp.ui.theme.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -106,20 +97,21 @@ fun PlayerProfileScreen(
     onBack: () -> Unit,
     viewModel: PlayerProfileViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val player by viewModel.player.collectAsState()
     val team by viewModel.team.collectAsState()
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         topBar = {
             TopAppBar(
-                title = { Text("Player Profile", fontWeight = FontWeight.Bold, fontSize = 17.sp, color = TextPrimary) },
+                title = { Text("Player Profile", fontWeight = FontWeight.Bold, fontSize = 17.sp, color = c.textPrimary) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Back", tint = TextSecondary)
+                        Icon(Icons.Default.ArrowBack, "Back", tint = c.textSecondary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = c.bg)
             )
         }
     ) { padding ->
@@ -129,7 +121,7 @@ fun PlayerProfileScreen(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentAlignment = Alignment.Center
             ) {
-                Text("Loading…", color = TextSecondary)
+                Text("Loading…", color = c.textSecondary)
             }
             return@Scaffold
         }
@@ -144,7 +136,7 @@ fun PlayerProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(DarkBg)
+                .background(c.bg)
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
@@ -157,7 +149,7 @@ fun PlayerProfileScreen(
                     .clip(RoundedCornerShape(20.dp))
                     .background(
                         Brush.linearGradient(
-                            listOf(roleColor.copy(alpha = 0.15f), DarkSurface)
+                            listOf(roleColor.copy(alpha = 0.15f), c.surface)
                         )
                     )
                     .border(1.dp, roleColor.copy(alpha = 0.35f), RoundedCornerShape(20.dp))
@@ -185,7 +177,7 @@ fun PlayerProfileScreen(
                         )
                     }
                     Spacer(Modifier.height(16.dp))
-                    Text(p.name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Black, color = TextPrimary, textAlign = TextAlign.Center)
+                    Text(p.name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Black, color = c.textPrimary, textAlign = TextAlign.Center)
                     Spacer(Modifier.height(6.dp))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -195,14 +187,14 @@ fun PlayerProfileScreen(
                         if (p.jerseyNumber > 0) {
                             Box(
                                 modifier = Modifier
-                                    .background(DarkSurface.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
-                                    .border(1.dp, OutlineColor, RoundedCornerShape(6.dp))
+                                    .background(c.surface.copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+                                    .border(1.dp, c.outline, RoundedCornerShape(6.dp))
                                     .padding(horizontal = 8.dp, vertical = 3.dp)
                             ) {
                                 Text(
                                     "#${p.jerseyNumber}",
                                     style = MaterialTheme.typography.labelMedium,
-                                    color = TextSecondary,
+                                    color = c.textSecondary,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
@@ -210,7 +202,7 @@ fun PlayerProfileScreen(
                     }
                     if (team != null) {
                         Spacer(Modifier.height(8.dp))
-                        Text(team!!.name, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+                        Text(team!!.name, style = MaterialTheme.typography.bodyMedium, color = c.textSecondary)
                     }
                 }
             }
@@ -231,15 +223,15 @@ fun PlayerProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(14.dp))
-                    .background(DarkSurface)
-                    .border(1.dp, OutlineColor, RoundedCornerShape(14.dp))
+                    .background(c.surface)
+                    .border(1.dp, c.outline, RoundedCornerShape(14.dp))
                     .padding(20.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(Icons.Default.SportsCricket, null, tint = EmeraldPrimary.copy(0.4f), modifier = Modifier.size(32.dp))
                     Spacer(Modifier.height(8.dp))
-                    Text("Tournament stats available after matches", style = MaterialTheme.typography.bodySmall, color = TextSecondary, textAlign = TextAlign.Center)
+                    Text("Tournament stats available after matches", style = MaterialTheme.typography.bodySmall, color = c.textSecondary, textAlign = TextAlign.Center)
                 }
             }
         }
@@ -250,12 +242,13 @@ fun PlayerProfileScreen(
 
 @Composable
 private fun InfoSection(items: List<Pair<String, String>>) {
+    val c = LocalAppColors.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(DarkSurface)
-            .border(1.dp, OutlineColor, RoundedCornerShape(14.dp))
+            .background(c.surface)
+            .border(1.dp, c.outline, RoundedCornerShape(14.dp))
     ) {
         items.forEachIndexed { index, (label, value) ->
             Row(
@@ -265,11 +258,11 @@ private fun InfoSection(items: List<Pair<String, String>>) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(label, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
-                Text(value, style = MaterialTheme.typography.bodyMedium, color = TextPrimary, fontWeight = FontWeight.SemiBold)
+                Text(label, style = MaterialTheme.typography.bodyMedium, color = c.textSecondary)
+                Text(value, style = MaterialTheme.typography.bodyMedium, color = c.textPrimary, fontWeight = FontWeight.SemiBold)
             }
             if (index < items.lastIndex) {
-                HorizontalDivider(color = DividerColor, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 16.dp))
+                HorizontalDivider(color = c.divider, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 16.dp))
             }
         }
     }

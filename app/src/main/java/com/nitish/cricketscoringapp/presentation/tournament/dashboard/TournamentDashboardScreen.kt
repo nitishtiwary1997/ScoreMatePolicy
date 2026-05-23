@@ -78,21 +78,7 @@ import com.nitish.cricketscoringapp.domain.model.Fixture
 import com.nitish.cricketscoringapp.domain.model.PointsEntry
 import com.nitish.cricketscoringapp.domain.model.TournamentStatus
 import com.nitish.cricketscoringapp.domain.model.TournamentTeam
-import com.nitish.cricketscoringapp.ui.theme.CricketRed
-import com.nitish.cricketscoringapp.ui.theme.DarkBg
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface2
-import com.nitish.cricketscoringapp.ui.theme.DividerColor
-import com.nitish.cricketscoringapp.ui.theme.DoneGreen
-import com.nitish.cricketscoringapp.ui.theme.EmeraldContainer
-import com.nitish.cricketscoringapp.ui.theme.EmeraldPrimary
-import com.nitish.cricketscoringapp.ui.theme.GoldContainer
-import com.nitish.cricketscoringapp.ui.theme.GoldPrimary
-import com.nitish.cricketscoringapp.ui.theme.LiveRed
-import com.nitish.cricketscoringapp.ui.theme.OutlineColor
-import com.nitish.cricketscoringapp.ui.theme.TextPrimary
-import com.nitish.cricketscoringapp.ui.theme.TextSecondary
-import com.nitish.cricketscoringapp.ui.theme.TextTertiary
+import com.nitish.cricketscoringapp.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -110,13 +96,14 @@ fun TournamentDashboardScreen(
     onLiveFixture: (matchId: String) -> Unit,
     viewModel: TournamentDashboardViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val state by viewModel.uiState.collectAsState()
     val statusUpdating by viewModel.statusUpdating.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         topBar = {
             TopAppBar(
                 title = {
@@ -124,20 +111,20 @@ fun TournamentDashboardScreen(
                         state.tournament?.name ?: "Tournament",
                         fontWeight = FontWeight.Black,
                         fontSize = 17.sp,
-                        color = TextPrimary,
+                        color = c.textPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Back", tint = TextSecondary)
+                        Icon(Icons.Default.ArrowBack, "Back", tint = c.textSecondary)
                     }
                 },
                 actions = {
                     Box {
                         IconButton(onClick = { showMenu = true }) {
-                            Icon(Icons.Default.Delete, "More", tint = TextSecondary)
+                            Icon(Icons.Default.Delete, "More", tint = c.textSecondary)
                         }
                         DropdownMenu(
                             expanded = showMenu,
@@ -160,12 +147,12 @@ fun TournamentDashboardScreen(
                             }
                             if (t?.status != TournamentStatus.CANCELLED && t?.status != TournamentStatus.COMPLETED) {
                                 DropdownMenuItem(
-                                    text = { Text("Cancel Tournament", color = TextSecondary) },
-                                    leadingIcon = { Icon(Icons.Default.Cancel, null, tint = TextSecondary) },
+                                    text = { Text("Cancel Tournament", color = c.textSecondary) },
+                                    leadingIcon = { Icon(Icons.Default.Cancel, null, tint = c.textSecondary) },
                                     onClick = { viewModel.cancelTournament(); showMenu = false }
                                 )
                             }
-                            HorizontalDivider(color = DividerColor)
+                            HorizontalDivider(color = c.divider)
                             DropdownMenuItem(
                                 text = { Text("Delete Tournament", color = CricketRed) },
                                 leadingIcon = { Icon(Icons.Default.Delete, null, tint = CricketRed) },
@@ -174,7 +161,7 @@ fun TournamentDashboardScreen(
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = c.bg)
             )
         }
     ) { padding ->
@@ -191,7 +178,7 @@ fun TournamentDashboardScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(DarkBg)
+                .background(c.bg)
                 .padding(padding),
             contentPadding = PaddingValues(bottom = 40.dp)
         ) {
@@ -280,10 +267,11 @@ fun TournamentDashboardScreen(
     }
 
     if (showDeleteDialog) {
+        val c = LocalAppColors.current
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            containerColor = DarkSurface,
-            titleContentColor = TextPrimary,
+            containerColor = c.surface,
+            titleContentColor = c.textPrimary,
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Icon(Icons.Default.Delete, null, tint = CricketRed, modifier = Modifier.size(20.dp))
@@ -294,7 +282,7 @@ fun TournamentDashboardScreen(
                 Text(
                     "Delete \"${state.tournament?.name}\" and all its teams, players, and fixtures? This cannot be undone.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
+                    color = c.textSecondary
                 )
             },
             confirmButton = {
@@ -308,7 +296,7 @@ fun TournamentDashboardScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancel", color = TextSecondary)
+                    Text("Cancel", color = c.textSecondary)
                 }
             }
         )
@@ -323,11 +311,12 @@ private fun TournamentHeroCard(
     statusUpdating: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val c = LocalAppColors.current
     val (statusColor, statusBg) = when (tournament.status) {
         TournamentStatus.UPCOMING  -> GoldPrimary to GoldContainer
         TournamentStatus.ONGOING   -> LiveRed to Color(0x1FFF4444)
         TournamentStatus.COMPLETED -> DoneGreen to EmeraldContainer
-        TournamentStatus.CANCELLED -> TextTertiary to DarkSurface2
+        TournamentStatus.CANCELLED -> c.textTertiary to c.surface2
     }
 
     Box(
@@ -339,7 +328,7 @@ private fun TournamentHeroCard(
                     listOf(
                         statusColor.copy(alpha = 0.10f),
                         Color(0xFF0D1520),
-                        DarkBg
+                        c.bg
                     )
                 )
             )
@@ -371,7 +360,7 @@ private fun TournamentHeroCard(
                         tournament.name,
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Black,
-                        color = TextPrimary,
+                        color = c.textPrimary,
                         lineHeight = 32.sp
                     )
                     if (tournament.organizerName.isNotBlank()) {
@@ -379,7 +368,7 @@ private fun TournamentHeroCard(
                         Text(
                             "by ${tournament.organizerName}",
                             style = MaterialTheme.typography.bodySmall,
-                            color = TextSecondary
+                            color = c.textSecondary
                         )
                     }
                 }
@@ -407,11 +396,11 @@ private fun TournamentHeroCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Icon(Icons.Default.Schedule, null, tint = TextTertiary, modifier = Modifier.size(12.dp))
+                Icon(Icons.Default.Schedule, null, tint = c.textTertiary, modifier = Modifier.size(12.dp))
                 Text(
                     "${shortDate(tournament.startDate)}  –  ${shortDate(tournament.endDate)}",
                     style = MaterialTheme.typography.labelSmall,
-                    color = TextSecondary,
+                    color = c.textSecondary,
                     fontSize = 11.sp
                 )
             }
@@ -421,8 +410,8 @@ private fun TournamentHeroCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Icon(Icons.Default.SportsCricket, null, tint = TextTertiary, modifier = Modifier.size(12.dp))
-                    Text(tournament.venue, style = MaterialTheme.typography.labelSmall, color = TextSecondary, fontSize = 11.sp)
+                    Icon(Icons.Default.SportsCricket, null, tint = c.textTertiary, modifier = Modifier.size(12.dp))
+                    Text(tournament.venue, style = MaterialTheme.typography.labelSmall, color = c.textSecondary, fontSize = 11.sp)
                 }
             }
         }
@@ -463,17 +452,18 @@ private fun QuickStatsRow(
 
 @Composable
 private fun StatTile(value: String, label: String, color: Color, modifier: Modifier = Modifier) {
+    val c = LocalAppColors.current
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(DarkSurface)
-            .border(1.dp, OutlineColor, RoundedCornerShape(12.dp))
+            .background(c.surface)
+            .border(1.dp, c.outline, RoundedCornerShape(12.dp))
             .padding(vertical = 14.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(value, fontWeight = FontWeight.Black, fontSize = 20.sp, color = color)
         Spacer(Modifier.height(2.dp))
-        Text(label, style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = c.textSecondary)
     }
 }
 
@@ -486,6 +476,7 @@ private fun LiveFixturesBanner(
     onFixtureClick: (Fixture) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val c = LocalAppColors.current
     val transition = rememberInfiniteTransition(label = "live_pulse")
     val dotAlpha by transition.animateFloat(
         initialValue = 1f, targetValue = 0.2f,
@@ -504,7 +495,7 @@ private fun LiveFixturesBanner(
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Box(Modifier.size(8.dp).background(LiveRed.copy(alpha = dotAlpha), CircleShape))
             Text("LIVE NOW", style = MaterialTheme.typography.labelMedium, color = LiveRed, fontWeight = FontWeight.Black, letterSpacing = 1.sp)
-            Text("· ${fixtures.size} match${if (fixtures.size > 1) "es" else ""}", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+            Text("· ${fixtures.size} match${if (fixtures.size > 1) "es" else ""}", style = MaterialTheme.typography.labelSmall, color = c.textSecondary)
         }
         fixtures.forEach { fixture ->
             val t1 = teamsMap[fixture.team1Id]?.name ?: "Team 1"
@@ -513,13 +504,13 @@ private fun LiveFixturesBanner(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(8.dp))
-                    .background(DarkSurface)
+                    .background(c.surface)
                     .clickable { onFixtureClick(fixture) }
                     .padding(horizontal = 12.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("$t1 vs $t2", style = MaterialTheme.typography.bodySmall, color = TextPrimary, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                Text("$t1 vs $t2", style = MaterialTheme.typography.bodySmall, color = c.textPrimary, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Score", style = MaterialTheme.typography.labelSmall, color = LiveRed, fontWeight = FontWeight.Bold)
                     Icon(Icons.Default.ChevronRight, null, tint = LiveRed, modifier = Modifier.size(16.dp))
@@ -624,11 +615,12 @@ private fun NavCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val c = LocalAppColors.current
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(14.dp))
-            .background(DarkSurface)
-            .border(1.dp, OutlineColor, RoundedCornerShape(14.dp))
+            .background(c.surface)
+            .border(1.dp, c.outline, RoundedCornerShape(14.dp))
             .clickable(onClick = onClick)
             .padding(14.dp)
     ) {
@@ -643,9 +635,9 @@ private fun NavCard(
                 Icon(icon, null, tint = color, modifier = Modifier.size(20.dp))
             }
             Spacer(Modifier.height(10.dp))
-            Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = TextPrimary)
+            Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = c.textPrimary)
             Spacer(Modifier.height(2.dp))
-            Text(subtitle, style = MaterialTheme.typography.labelSmall, color = TextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(subtitle, style = MaterialTheme.typography.labelSmall, color = c.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }
@@ -658,12 +650,13 @@ private fun PointsTablePreview(
     onViewAll: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val c = LocalAppColors.current
     Column(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(DarkSurface)
-            .border(1.dp, OutlineColor, RoundedCornerShape(14.dp))
+            .background(c.surface)
+            .border(1.dp, c.outline, RoundedCornerShape(14.dp))
     ) {
         entries.forEachIndexed { idx, entry ->
             val pos = idx + 1
@@ -681,27 +674,27 @@ private fun PointsTablePreview(
                         .background(posBadgeBg(pos), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("$pos", fontSize = 10.sp, fontWeight = FontWeight.ExtraBold, color = posBadgeFg(pos))
+                    Text("$pos", fontSize = 10.sp, fontWeight = FontWeight.ExtraBold, color = posBadgeFg(pos, c.textTertiary))
                 }
                 // Team dot + name
                 Box(
                     modifier = Modifier.size(20.dp).background(teamDotColor(entry.teamName), CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(entry.teamName.firstOrNull()?.uppercase() ?: "?", fontSize = 8.sp, fontWeight = FontWeight.ExtraBold, color = TextPrimary)
+                    Text(entry.teamName.firstOrNull()?.uppercase() ?: "?", fontSize = 8.sp, fontWeight = FontWeight.ExtraBold, color = c.textPrimary)
                 }
                 Text(
                     entry.teamName,
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = TextPrimary,
+                    color = c.textPrimary,
                     modifier = Modifier.weight(1f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 // Stats
-                Text("${entry.matchesPlayed}G", style = MaterialTheme.typography.labelSmall, color = TextTertiary)
-                Text("${entry.won}W", style = MaterialTheme.typography.labelSmall, color = if (entry.won > 0) DoneGreen else TextTertiary)
+                Text("${entry.matchesPlayed}G", style = MaterialTheme.typography.labelSmall, color = c.textTertiary)
+                Text("${entry.won}W", style = MaterialTheme.typography.labelSmall, color = if (entry.won > 0) DoneGreen else c.textTertiary)
                 Box(
                     modifier = Modifier
                         .background(EmeraldPrimary.copy(alpha = 0.12f), RoundedCornerShape(4.dp))
@@ -710,9 +703,9 @@ private fun PointsTablePreview(
                     Text("${entry.points} pts", fontSize = 11.sp, fontWeight = FontWeight.ExtraBold, color = EmeraldPrimary)
                 }
             }
-            if (idx < entries.lastIndex) HorizontalDivider(color = DividerColor, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 14.dp))
+            if (idx < entries.lastIndex) HorizontalDivider(color = c.divider, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 14.dp))
         }
-        HorizontalDivider(color = DividerColor, thickness = 0.5.dp)
+        HorizontalDivider(color = c.divider, thickness = 0.5.dp)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -734,6 +727,7 @@ private fun TournamentInfoCard(
     tournament: com.nitish.cricketscoringapp.domain.model.Tournament,
     modifier: Modifier = Modifier
 ) {
+    val c = LocalAppColors.current
     val items = buildList {
         add("Format" to tournament.matchFormat.label)
         add("Overs" to "${tournament.totalOvers}")
@@ -749,8 +743,8 @@ private fun TournamentInfoCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(DarkSurface)
-            .border(1.dp, OutlineColor, RoundedCornerShape(14.dp))
+            .background(c.surface)
+            .border(1.dp, c.outline, RoundedCornerShape(14.dp))
     ) {
         items.forEachIndexed { idx, (label, value) ->
             Row(
@@ -760,10 +754,10 @@ private fun TournamentInfoCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                Text(label, style = MaterialTheme.typography.bodySmall, color = TextSecondary, modifier = Modifier.weight(0.4f))
-                Text(value, style = MaterialTheme.typography.bodySmall, color = TextPrimary, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(0.6f), textAlign = TextAlign.End, maxLines = 3)
+                Text(label, style = MaterialTheme.typography.bodySmall, color = c.textSecondary, modifier = Modifier.weight(0.4f))
+                Text(value, style = MaterialTheme.typography.bodySmall, color = c.textPrimary, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(0.6f), textAlign = TextAlign.End, maxLines = 3)
             }
-            if (idx < items.lastIndex) HorizontalDivider(color = DividerColor, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 16.dp))
+            if (idx < items.lastIndex) HorizontalDivider(color = c.divider, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 16.dp))
         }
     }
 }
@@ -796,13 +790,14 @@ private fun StatusBadge(label: String, color: Color, bg: Color) {
 
 @Composable
 private fun TypeChip(label: String) {
+    val c = LocalAppColors.current
     Box(
         modifier = Modifier
-            .background(DarkSurface2, RoundedCornerShape(5.dp))
-            .border(1.dp, OutlineColor, RoundedCornerShape(5.dp))
+            .background(c.surface2, RoundedCornerShape(5.dp))
+            .border(1.dp, c.outline, RoundedCornerShape(5.dp))
             .padding(horizontal = 8.dp, vertical = 3.dp)
     ) {
-        Text(label, style = MaterialTheme.typography.labelSmall, color = TextSecondary, fontSize = 10.sp)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = c.textSecondary, fontSize = 10.sp)
     }
 }
 
@@ -814,8 +809,8 @@ private fun shortDate(ms: Long) = dateFmt.format(Date(ms))
 private fun posBadgeBg(pos: Int) = when (pos) {
     1 -> Color(0x30FFD700); 2 -> Color(0x28C0C0C0); 3 -> Color(0x28CD7F32); else -> Color(0x18FFFFFF)
 }
-private fun posBadgeFg(pos: Int) = when (pos) {
-    1 -> Color(0xFFFFD700); 2 -> Color(0xFFC0C0C0); 3 -> Color(0xFFCD7F32); else -> TextTertiary
+private fun posBadgeFg(pos: Int, textTertiary: Color) = when (pos) {
+    1 -> Color(0xFFFFD700); 2 -> Color(0xFFC0C0C0); 3 -> Color(0xFFCD7F32); else -> textTertiary
 }
 private fun teamDotColor(name: String): Color {
     val palette = listOf(Color(0xFF1E3A5F), Color(0xFF2D1B4E), Color(0xFF1A3A2A), Color(0xFF3A1A1A), Color(0xFF1A2E3A))

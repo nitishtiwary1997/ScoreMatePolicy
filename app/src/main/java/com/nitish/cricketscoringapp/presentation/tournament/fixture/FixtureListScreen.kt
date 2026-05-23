@@ -67,20 +67,7 @@ import com.nitish.cricketscoringapp.domain.model.Fixture
 import com.nitish.cricketscoringapp.domain.model.FixtureStage
 import com.nitish.cricketscoringapp.domain.model.FixtureStatus
 import com.nitish.cricketscoringapp.domain.model.TournamentTeam
-import com.nitish.cricketscoringapp.ui.theme.DarkBg
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface2
-import com.nitish.cricketscoringapp.ui.theme.DividerColor
-import com.nitish.cricketscoringapp.ui.theme.DoneGreen
-import com.nitish.cricketscoringapp.ui.theme.EmeraldContainer
-import com.nitish.cricketscoringapp.ui.theme.EmeraldPrimary
-import com.nitish.cricketscoringapp.ui.theme.GoldContainer
-import com.nitish.cricketscoringapp.ui.theme.GoldPrimary
-import com.nitish.cricketscoringapp.ui.theme.LiveRed
-import com.nitish.cricketscoringapp.ui.theme.OutlineColor
-import com.nitish.cricketscoringapp.ui.theme.TextPrimary
-import com.nitish.cricketscoringapp.ui.theme.TextSecondary
-import com.nitish.cricketscoringapp.ui.theme.TextTertiary
+import com.nitish.cricketscoringapp.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -93,6 +80,7 @@ fun FixtureListScreen(
     onFixtureClick: (fixtureId: String) -> Unit,
     viewModel: FixtureListViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val tournament by viewModel.tournament.collectAsState()
     val fixtures by viewModel.fixtures.collectAsState()
     val teamsMap by viewModel.teamsMap.collectAsState()
@@ -111,7 +99,7 @@ fun FixtureListScreen(
     }
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         snackbarHost = { SnackbarHost(snackbarHost) },
         topBar = {
             TopAppBar(
@@ -121,7 +109,7 @@ fun FixtureListScreen(
                             "Fixtures",
                             fontWeight = FontWeight.Black,
                             fontSize = 17.sp,
-                            color = TextPrimary
+                            color = c.textPrimary
                         )
                         tournament?.let {
                             Text(
@@ -136,7 +124,7 @@ fun FixtureListScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Back", tint = TextSecondary)
+                        Icon(Icons.Default.ArrowBack, "Back", tint = c.textSecondary)
                     }
                 },
                 actions = {
@@ -157,7 +145,7 @@ fun FixtureListScreen(
                         Spacer(Modifier.width(12.dp))
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = c.bg)
             )
         },
         floatingActionButton = {
@@ -205,7 +193,7 @@ fun FixtureListScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(DarkBg)
+                        .background(c.bg)
                         .padding(padding),
                     contentPadding = PaddingValues(
                         start = 16.dp, end = 16.dp, top = 8.dp, bottom = 100.dp
@@ -233,6 +221,7 @@ fun FixtureListScreen(
     }
 
     if (showDatePicker) {
+        val c2 = LocalAppColors.current
         val dateState = rememberDatePickerState(
             initialSelectedDateMillis = System.currentTimeMillis()
         )
@@ -254,11 +243,11 @@ fun FixtureListScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancel", color = TextSecondary)
+                    Text("Cancel", color = c2.textSecondary)
                 }
             }
         ) {
-            DatePicker(state = dateState, title = { Text("  Select start date", color = TextPrimary) })
+            DatePicker(state = dateState, title = { Text("  Select start date", color = c2.textPrimary) })
         }
     }
 }
@@ -267,11 +256,12 @@ fun FixtureListScreen(
 
 @Composable
 private fun StageHeader(stage: FixtureStage, count: Int) {
+    val c = LocalAppColors.current
     val color = when (stage) {
         FixtureStage.GROUP              -> EmeraldPrimary
         FixtureStage.QUARTER_FINAL      -> Color(0xFF64B5F6)
         FixtureStage.SEMI_FINAL         -> GoldPrimary
-        FixtureStage.THIRD_PLACE_PLAYOFF -> TextSecondary
+        FixtureStage.THIRD_PLACE_PLAYOFF -> c.textSecondary
         FixtureStage.FINAL              -> GoldPrimary
     }
     Row(
@@ -314,11 +304,12 @@ private fun FixtureCard(
     team2: TournamentTeam?,
     onClick: () -> Unit
 ) {
+    val c = LocalAppColors.current
     val (accentColor, statusLabel, bgColor) = when (fixture.status) {
         FixtureStatus.UPCOMING  -> Triple(EmeraldPrimary, "UPCOMING", EmeraldContainer)
         FixtureStatus.LIVE      -> Triple(LiveRed, "LIVE", Color(0x1FFF4444))
         FixtureStatus.COMPLETED -> Triple(DoneGreen, "DONE", Color(0x1F4CAF50))
-        FixtureStatus.ABANDONED -> Triple(TextTertiary, "ABANDONED", DarkSurface2)
+        FixtureStatus.ABANDONED -> Triple(c.textTertiary, "ABANDONED", c.surface2)
         FixtureStatus.NO_RESULT -> Triple(GoldPrimary, "NO RESULT", GoldContainer)
     }
 
@@ -326,8 +317,8 @@ private fun FixtureCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(DarkSurface)
-            .border(1.dp, OutlineColor, RoundedCornerShape(14.dp))
+            .background(c.surface)
+            .border(1.dp, c.outline, RoundedCornerShape(14.dp))
             .clickable(onClick = onClick)
     ) {
         Row(modifier = Modifier.height(IntrinsicSize.Min)) {
@@ -356,13 +347,13 @@ private fun FixtureCard(
                     ) {
                         Box(
                             modifier = Modifier
-                                .background(DarkSurface2, RoundedCornerShape(4.dp))
+                                .background(c.surface2, RoundedCornerShape(4.dp))
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
                                 "M${fixture.matchNumber}",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = TextTertiary,
+                                color = c.textTertiary,
                                 fontSize = 9.sp
                             )
                         }
@@ -370,13 +361,13 @@ private fun FixtureCard(
                         if (fixture.stage == FixtureStage.GROUP) {
                             Box(
                                 modifier = Modifier
-                                    .background(DarkSurface2, RoundedCornerShape(4.dp))
+                                    .background(c.surface2, RoundedCornerShape(4.dp))
                                     .padding(horizontal = 6.dp, vertical = 2.dp)
                             ) {
                                 Text(
                                     "Grp ${fixture.groupName}",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = TextTertiary,
+                                    color = c.textTertiary,
                                     fontSize = 9.sp
                                 )
                             }
@@ -386,11 +377,11 @@ private fun FixtureCard(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(3.dp)
                     ) {
-                        Icon(Icons.Default.Schedule, null, tint = TextTertiary, modifier = Modifier.size(11.dp))
+                        Icon(Icons.Default.Schedule, null, tint = c.textTertiary, modifier = Modifier.size(11.dp))
                         Text(
                             formatFixtureDate(fixture.scheduledAt),
                             style = MaterialTheme.typography.labelSmall,
-                            color = TextTertiary,
+                            color = c.textTertiary,
                             fontSize = 10.sp
                         )
                     }
@@ -429,6 +420,7 @@ private fun FixtureCard(
 
 @Composable
 private fun TeamMatchupRow(team1: TournamentTeam?, team2: TournamentTeam?) {
+    val c = LocalAppColors.current
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -445,7 +437,7 @@ private fun TeamMatchupRow(team1: TournamentTeam?, team2: TournamentTeam?) {
                     name,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = TextPrimary,
+                    color = c.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -459,7 +451,7 @@ private fun TeamMatchupRow(team1: TournamentTeam?, team2: TournamentTeam?) {
             Text(
                 "vs",
                 style = MaterialTheme.typography.labelSmall,
-                color = TextTertiary,
+                color = c.textTertiary,
                 fontWeight = FontWeight.Bold,
                 fontSize = 11.sp
             )
@@ -475,7 +467,7 @@ private fun TeamMatchupRow(team1: TournamentTeam?, team2: TournamentTeam?) {
                     name,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = TextPrimary,
+                    color = c.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -529,6 +521,7 @@ private fun FixtureEmptyState(
     modifier: Modifier = Modifier,
     onGenerate: () -> Unit
 ) {
+    val c = LocalAppColors.current
     Column(
         modifier = modifier.padding(horizontal = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -549,7 +542,7 @@ private fun FixtureEmptyState(
             )
         }
         Spacer(Modifier.height(20.dp))
-        Text("No Fixtures Yet", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
+        Text("No Fixtures Yet", style = MaterialTheme.typography.titleMedium, color = c.textPrimary, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         Text(
             when {
@@ -557,7 +550,7 @@ private fun FixtureEmptyState(
                 else -> "All teams are registered. Tap the button below to auto-generate the full match schedule."
             },
             style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary,
+            color = c.textSecondary,
             textAlign = TextAlign.Center
         )
         if (teamCount >= 2) {

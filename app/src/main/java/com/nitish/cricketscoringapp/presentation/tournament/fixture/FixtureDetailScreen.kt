@@ -54,19 +54,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nitish.cricketscoringapp.domain.model.FixtureStatus
 import com.nitish.cricketscoringapp.domain.model.TournamentTeam
-import com.nitish.cricketscoringapp.ui.theme.DarkBg
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface
-import com.nitish.cricketscoringapp.ui.theme.DividerColor
-import com.nitish.cricketscoringapp.ui.theme.DoneGreen
-import com.nitish.cricketscoringapp.ui.theme.EmeraldContainer
-import com.nitish.cricketscoringapp.ui.theme.EmeraldPrimary
-import com.nitish.cricketscoringapp.ui.theme.GoldContainer
-import com.nitish.cricketscoringapp.ui.theme.GoldPrimary
-import com.nitish.cricketscoringapp.ui.theme.LiveRed
-import com.nitish.cricketscoringapp.ui.theme.OutlineColor
-import com.nitish.cricketscoringapp.ui.theme.TextPrimary
-import com.nitish.cricketscoringapp.ui.theme.TextSecondary
-import com.nitish.cricketscoringapp.ui.theme.TextTertiary
+import com.nitish.cricketscoringapp.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -81,6 +69,7 @@ fun FixtureDetailScreen(
     onWatchLive: (matchId: String) -> Unit = {},
     viewModel: FixtureDetailViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val state by viewModel.state.collectAsState()
     val snackbarHost = remember { SnackbarHostState() }
 
@@ -96,7 +85,7 @@ fun FixtureDetailScreen(
     }
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         snackbarHost = { SnackbarHost(snackbarHost) },
         topBar = {
             TopAppBar(
@@ -105,15 +94,15 @@ fun FixtureDetailScreen(
                         state.fixture?.stageLabel ?: "Fixture",
                         fontWeight = FontWeight.Bold,
                         fontSize = 17.sp,
-                        color = TextPrimary
+                        color = c.textPrimary
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Back", tint = TextSecondary)
+                        Icon(Icons.Default.ArrowBack, "Back", tint = c.textSecondary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = c.bg)
             )
         }
     ) { padding ->
@@ -134,13 +123,13 @@ fun FixtureDetailScreen(
             FixtureStatus.UPCOMING  -> EmeraldPrimary
             FixtureStatus.LIVE      -> LiveRed
             FixtureStatus.COMPLETED -> DoneGreen
-            else                    -> TextTertiary
+            else                    -> c.textTertiary
         }
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(DarkBg)
+                .background(c.bg)
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
@@ -153,7 +142,7 @@ fun FixtureDetailScreen(
                     .clip(RoundedCornerShape(20.dp))
                     .background(
                         Brush.linearGradient(
-                            listOf(statusColor.copy(alpha = 0.12f), DarkSurface)
+                            listOf(statusColor.copy(alpha = 0.12f), c.surface)
                         )
                     )
                     .border(1.dp, statusColor.copy(alpha = 0.3f), RoundedCornerShape(20.dp))
@@ -171,13 +160,13 @@ fun FixtureDetailScreen(
                         StatusBadge(label = fixture.status.label.uppercase(), color = statusColor)
                         Box(
                             modifier = Modifier
-                                .background(DarkSurface.copy(alpha = 0.7f), RoundedCornerShape(5.dp))
+                                .background(c.surface.copy(alpha = 0.7f), RoundedCornerShape(5.dp))
                                 .padding(horizontal = 8.dp, vertical = 2.dp)
                         ) {
                             Text(
                                 "Match ${fixture.matchNumber}",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = TextSecondary
+                                color = c.textSecondary
                             )
                         }
                     }
@@ -204,7 +193,7 @@ fun FixtureDetailScreen(
                             Text(
                                 "VS",
                                 style = MaterialTheme.typography.titleSmall,
-                                color = TextTertiary,
+                                color = c.textTertiary,
                                 fontWeight = FontWeight.Black,
                                 letterSpacing = 2.sp
                             )
@@ -246,33 +235,33 @@ fun FixtureDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(14.dp))
-                    .background(DarkSurface)
-                    .border(1.dp, OutlineColor, RoundedCornerShape(14.dp))
+                    .background(c.surface)
+                    .border(1.dp, c.outline, RoundedCornerShape(14.dp))
             ) {
                 InfoRow(
-                    icon = { Icon(Icons.Default.CalendarToday, null, tint = TextTertiary, modifier = Modifier.size(14.dp)) },
+                    icon = { Icon(Icons.Default.CalendarToday, null, tint = c.textTertiary, modifier = Modifier.size(14.dp)) },
                     label = "Scheduled",
                     value = longDateFmt.format(Date(fixture.scheduledAt))
                 )
-                HorizontalDivider(color = DividerColor, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 16.dp))
+                HorizontalDivider(color = c.divider, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 16.dp))
                 InfoRow(
-                    icon = { Icon(Icons.Default.SportsCricket, null, tint = TextTertiary, modifier = Modifier.size(14.dp)) },
+                    icon = { Icon(Icons.Default.SportsCricket, null, tint = c.textTertiary, modifier = Modifier.size(14.dp)) },
                     label = "Format",
                     value = "${tournament?.matchFormat?.label ?: "T20"} · ${tournament?.totalOvers ?: 20} overs"
                 )
                 if (fixture.venue.isNotBlank()) {
-                    HorizontalDivider(color = DividerColor, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 16.dp))
+                    HorizontalDivider(color = c.divider, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 16.dp))
                     InfoRow(
-                        icon = { Icon(Icons.Default.Schedule, null, tint = TextTertiary, modifier = Modifier.size(14.dp)) },
+                        icon = { Icon(Icons.Default.Schedule, null, tint = c.textTertiary, modifier = Modifier.size(14.dp)) },
                         label = "Venue",
                         value = fixture.venue
                     )
                 }
                 tournament?.let { t ->
                     if (t.venue.isNotBlank() && fixture.venue.isBlank()) {
-                        HorizontalDivider(color = DividerColor, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 16.dp))
+                        HorizontalDivider(color = c.divider, thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 16.dp))
                         InfoRow(
-                            icon = { Icon(Icons.Default.Schedule, null, tint = TextTertiary, modifier = Modifier.size(14.dp)) },
+                            icon = { Icon(Icons.Default.Schedule, null, tint = c.textTertiary, modifier = Modifier.size(14.dp)) },
                             label = "Venue",
                             value = t.venue
                         )
@@ -353,6 +342,7 @@ private fun TeamHeroColumn(
     modifier: Modifier = Modifier,
     align: Alignment.Horizontal
 ) {
+    val c = LocalAppColors.current
     val name = team?.name ?: "TBD"
     val initials = team?.initials?.take(2) ?: name.take(2).uppercase()
     val idx = abs(name.hashCode()) % heroBgs.size
@@ -375,7 +365,7 @@ private fun TeamHeroColumn(
             name,
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
-            color = TextPrimary,
+            color = c.textPrimary,
             textAlign = if (align == Alignment.Start) TextAlign.Start else TextAlign.End,
             maxLines = 2
         )
@@ -413,6 +403,7 @@ private fun InfoRow(
     label: String,
     value: String
 ) {
+    val c = LocalAppColors.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -425,9 +416,9 @@ private fun InfoRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             icon()
-            Text(label, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+            Text(label, style = MaterialTheme.typography.bodyMedium, color = c.textSecondary)
         }
-        Text(value, style = MaterialTheme.typography.bodyMedium, color = TextPrimary, fontWeight = FontWeight.SemiBold)
+        Text(value, style = MaterialTheme.typography.bodyMedium, color = c.textPrimary, fontWeight = FontWeight.SemiBold)
     }
 }
 

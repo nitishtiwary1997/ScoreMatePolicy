@@ -9,6 +9,7 @@ import com.nitish.cricketscoringapp.domain.model.Match
 import com.nitish.cricketscoringapp.domain.model.MatchStatus
 import com.nitish.cricketscoringapp.domain.model.Player
 import com.nitish.cricketscoringapp.domain.model.TossChoice
+import com.nitish.cricketscoringapp.domain.model.SavedTeam
 import com.nitish.cricketscoringapp.domain.model.WicketType
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -17,7 +18,8 @@ import javax.inject.Singleton
 data class CloudSyncData(
     val matches: List<Match>,
     val players: List<Player>,
-    val balls: List<Ball>
+    val balls: List<Ball>,
+    val savedTeams: List<SavedTeam> = emptyList()
 )
 
 /**
@@ -31,6 +33,7 @@ class FirebaseMatchDataSource @Inject constructor(
 ) {
     private fun userRoot() = firestore.collection("users").document(userSession.userId)
     private fun matchDoc(matchId: String) = userRoot().collection("matches").document(matchId)
+    private fun savedTeamsCol() = userRoot().collection("saved_teams")
 
     // ── Write operations ──────────────────────────────────────────────────────
 
@@ -71,36 +74,69 @@ class FirebaseMatchDataSource @Inject constructor(
         }
     }
 
+    suspend fun saveSavedTeam(team: SavedTeam) {
+        runCatching {
+            savedTeamsCol().document(team.name)
+                .set(mapOf(
+                    "name" to team.name,
+                    "playerNames" to team.playerNames
+                ), SetOptions.merge())
+                .await()
+        }
+    }
+
+    suspend fun deleteSavedTeam(teamName: String) {
+        runCatching {
+            savedTeamsCol().document(teamName).delete().await()
+        }
+    }
+
     // ── Read / sync operation ─────────────────────────────────────────────────
 
     suspend fun fetchAllUserData(): CloudSyncData {
         val uid = userSession.userId
-        if (uid.isEmpty()) return CloudSyncData(emptyList(), emptyList(), emptyList())
+        if (uid.isEmpty()) return CloudSyncData(emptyList(), emptyList(), emptyList(), emptyList())
 
         val matches = mutableListOf<Match>()
         val players = mutableListOf<Player>()
         val balls   = mutableListOf<Ball>()
+        val savedTeams = mutableListOf<SavedTeam>()
 
-        val matchDocs = runCatching {
-            userRoot().collection("matches").get().await()
-        }.getOrNull() ?: return CloudSyncData(emptyList(), emptyList(), emptyList())
+        // Fetch saved teams
+        val savedTeamDocs = runCatching {
+            savedTeamsCol().get().await()
+        }.getOrNull()
 
-        for (doc in matchDocs.documents) {
-            val match = doc.toMatch() ?: continue
-            matches += match
-
-            runCatching {
-                doc.reference.collection("players").get().await()
-            }.getOrNull()?.documents?.mapNotNull { it.toPlayer() }?.let { players += it }
-
-            for (innings in 1..2) {
-                runCatching {
-                    doc.reference.collection("balls_innings$innings").get().await()
-                }.getOrNull()?.documents?.mapNotNull { it.toBall() }?.let { balls += it }
+        if (savedTeamDocs != null) {
+            for (doc in savedTeamDocs.documents) {
+                val name = doc.getString("name") ?: continue
+                val playerNames = (doc.get("playerNames") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+                savedTeams += SavedTeam(name = name, playerNames = playerNames)
             }
         }
 
-        return CloudSyncData(matches, players, balls)
+        val matchDocs = runCatching {
+            userRoot().collection("matches").get().await()
+        }.getOrNull()
+
+        if (matchDocs != null) {
+            for (doc in matchDocs.documents) {
+                val match = doc.toMatch() ?: continue
+                matches += match
+
+                runCatching {
+                    doc.reference.collection("players").get().await()
+                }.getOrNull()?.documents?.mapNotNull { it.toPlayer() }?.let { players += it }
+
+                for (innings in 1..2) {
+                    runCatching {
+                        doc.reference.collection("balls_innings$innings").get().await()
+                    }.getOrNull()?.documents?.mapNotNull { it.toBall() }?.let { balls += it }
+                }
+            }
+        }
+
+        return CloudSyncData(matches, players, balls, savedTeams)
     }
 
     // ── Firestore document → domain model parsers ─────────────────────────────

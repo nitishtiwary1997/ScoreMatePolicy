@@ -37,6 +37,7 @@ fun MatchSummaryScreen(
     onBack: () -> Unit,
     viewModel: MatchSummaryViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val state          by viewModel.uiState.collectAsState()
     val isPdfGenerating by viewModel.isPdfGenerating.collectAsState()
     val context        = LocalContext.current
@@ -55,7 +56,7 @@ fun MatchSummaryScreen(
     }
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         topBar = {
             TopAppBar(
                 title = {
@@ -64,12 +65,12 @@ fun MatchSummaryScreen(
                             "Match Summary",
                             fontWeight = FontWeight.Black,
                             fontSize = 18.sp,
-                            color = TextPrimary
+                            color = c.textPrimary
                         )
                         Text(
                             "Full scorecard",
                             fontSize = 11.sp,
-                            color = TextSecondary
+                            color = c.textSecondary
                         )
                     }
                 },
@@ -94,7 +95,7 @@ fun MatchSummaryScreen(
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = c.bg)
             )
         }
     ) { padding ->
@@ -108,7 +109,7 @@ fun MatchSummaryScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(DarkBg)
+                .background(c.bg)
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
@@ -119,7 +120,7 @@ fun MatchSummaryScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        Brush.horizontalGradient(listOf(GoldContainer, DarkSurface3)),
+                        Brush.horizontalGradient(listOf(GoldContainer, c.surface3)),
                         RoundedCornerShape(16.dp)
                     )
                     .border(1.dp, GoldPrimary.copy(alpha = 0.4f), RoundedCornerShape(16.dp))
@@ -155,11 +156,12 @@ fun MatchSummaryScreen(
 
 @Composable
 private fun InningsScorecardCard(score: InningsScore) {
+    val c = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, OutlineColor)
+        colors = CardDefaults.cardColors(containerColor = c.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, c.outline)
     ) {
         Column(
             modifier = Modifier.padding(14.dp),
@@ -191,16 +193,16 @@ private fun InningsScorecardCard(score: InningsScore) {
                 }
             }
 
-            HorizontalDivider(color = DividerColor)
+            HorizontalDivider(color = c.divider)
 
             // ── Batting ──────────────────────────────────────────────────
             SectionLabel("Batting", "🏏")
             Row(Modifier.fillMaxWidth()) {
-                Text("Batsman", Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                Text("Batsman", Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, color = c.textSecondary)
                 listOf("R", "B", "4s", "6s").forEach {
-                    Text(it, Modifier.width(30.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                    Text(it, Modifier.width(30.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.labelSmall, color = c.textSecondary)
                 }
-                Text("SR", Modifier.width(46.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                Text("SR", Modifier.width(46.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.labelSmall, color = c.textSecondary)
             }
             score.batsmen.filter { it.balls > 0 || it.isOut }.forEach { b ->
                 BattingRow(b)
@@ -211,22 +213,22 @@ private fun InningsScorecardCard(score: InningsScore) {
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Extras", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                Text("Extras", style = MaterialTheme.typography.bodySmall, color = c.textSecondary)
                 Text(
                     "${score.extras} (w ${score.wides}, nb ${score.noBalls}, b ${score.byes}, lb ${score.legByes})",
                     style = MaterialTheme.typography.bodySmall,
-                    color = TextSecondary
+                    color = c.textSecondary
                 )
             }
 
-            HorizontalDivider(color = DividerColor)
+            HorizontalDivider(color = c.divider)
 
             // ── Bowling ──────────────────────────────────────────────────
             SectionLabel("Bowling", "⚾")
             Row(Modifier.fillMaxWidth()) {
-                Text("Bowler", Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                Text("Bowler", Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, color = c.textSecondary)
                 listOf("O", "M", "R", "W", "Eco").forEach {
-                    Text(it, Modifier.width(30.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                    Text(it, Modifier.width(30.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.labelSmall, color = c.textSecondary)
                 }
             }
             score.bowlers.filter { it.totalLegalBalls > 0 }.forEach { b ->
@@ -235,7 +237,7 @@ private fun InningsScorecardCard(score: InningsScore) {
 
             // ── Fall of Wickets ───────────────────────────────────────────
             if (score.fallOfWickets.isNotEmpty()) {
-                HorizontalDivider(color = DividerColor)
+                HorizontalDivider(color = c.divider)
                 FallOfWicketsSection(score.fallOfWickets)
             }
         }
@@ -244,6 +246,7 @@ private fun InningsScorecardCard(score: InningsScore) {
 
 @Composable
 private fun SectionLabel(text: String, emoji: String) {
+    val c = LocalAppColors.current
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -253,23 +256,24 @@ private fun SectionLabel(text: String, emoji: String) {
             text,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
-            color = TextPrimary
+            color = c.textPrimary
         )
     }
 }
 
 @Composable
 private fun BattingRow(b: BatsmanScore) {
+    val c = LocalAppColors.current
     Row(Modifier.fillMaxWidth().padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
             Text(
                 b.player.name,
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.SemiBold,
-                color = TextPrimary
+                color = c.textPrimary
             )
             b.dismissalInfo?.let {
-                Text(it, style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                Text(it, style = MaterialTheme.typography.labelSmall, color = c.textSecondary)
             } ?: Text(
                 if (!b.isOut) "not out" else "",
                 style = MaterialTheme.typography.labelSmall,
@@ -282,37 +286,39 @@ private fun BattingRow(b: BatsmanScore) {
             textAlign = TextAlign.End,
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Bold,
-            color = if (b.runs >= 50) GoldPrimary else TextPrimary
+            color = if (b.runs >= 50) GoldPrimary else c.textPrimary
         )
-        Text("${b.balls}",  Modifier.width(30.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+        Text("${b.balls}",  Modifier.width(30.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.bodySmall, color = c.textSecondary)
         Text("${b.fours}",  Modifier.width(30.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.bodySmall, color = CricketBlue)
         Text("${b.sixes}",  Modifier.width(30.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.bodySmall, color = CricketPurple)
-        Text("${"%.1f".format(b.strikeRate)}", Modifier.width(46.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.bodySmall, color = TextSecondary, maxLines = 1, softWrap = false)
+        Text("${"%.1f".format(b.strikeRate)}", Modifier.width(46.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.bodySmall, color = c.textSecondary, maxLines = 1, softWrap = false)
     }
 }
 
 @Composable
 private fun BowlingRow(b: BowlerStats) {
+    val c = LocalAppColors.current
     Row(Modifier.fillMaxWidth().padding(vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(b.player.name, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = TextPrimary)
-        Text(b.oversDisplay,      Modifier.width(30.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+        Text(b.player.name, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = c.textPrimary)
+        Text(b.oversDisplay,      Modifier.width(30.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.bodySmall, color = c.textSecondary)
         Text("${b.maidens}",      Modifier.width(30.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.bodySmall,
-            color = if (b.maidens > 0) EmeraldPrimary else TextSecondary)
-        Text("${b.runs}",         Modifier.width(30.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+            color = if (b.maidens > 0) EmeraldPrimary else c.textSecondary)
+        Text("${b.runs}",         Modifier.width(30.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.bodySmall, color = c.textSecondary)
         Text(
             "${b.wickets}",
             Modifier.width(30.dp),
             textAlign = TextAlign.End,
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Bold,
-            color = if (b.wickets > 0) CricketRed else TextSecondary
+            color = if (b.wickets > 0) CricketRed else c.textSecondary
         )
-        Text("${"%.1f".format(b.economy)}", Modifier.width(30.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+        Text("${"%.1f".format(b.economy)}", Modifier.width(30.dp), textAlign = TextAlign.End, style = MaterialTheme.typography.bodySmall, color = c.textSecondary)
     }
 }
 
 @Composable
 private fun FallOfWicketsSection(fow: List<FallOfWicket>) {
+    val c = LocalAppColors.current
     SectionLabel("Fall of Wickets", "🎯")
 
     // Column header row
@@ -326,21 +332,21 @@ private fun FallOfWicketsSection(fow: List<FallOfWicket>) {
             "Batsman",
             Modifier.weight(1f),
             style = MaterialTheme.typography.labelSmall,
-            color = TextSecondary
+            color = c.textSecondary
         )
         Text(
             "Score",
             Modifier.width(52.dp),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.labelSmall,
-            color = TextSecondary
+            color = c.textSecondary
         )
         Text(
             "Over",
             Modifier.width(42.dp),
             textAlign = TextAlign.End,
             style = MaterialTheme.typography.labelSmall,
-            color = TextSecondary
+            color = c.textSecondary
         )
     }
 
@@ -378,14 +384,14 @@ private fun FallOfWicketsSection(fow: List<FallOfWicket>) {
                         w.playerName,
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.SemiBold,
-                        color = TextPrimary,
+                        color = c.textPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
                         w.dismissalInfo,
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextSecondary,
+                        color = c.textSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -412,10 +418,10 @@ private fun FallOfWicketsSection(fow: List<FallOfWicket>) {
                     .padding(top = 2.dp),
                 textAlign = TextAlign.End,
                 style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
+                color = c.textSecondary
             )
         }
 
-        HorizontalDivider(color = DividerColor.copy(alpha = 0.5f))
+        HorizontalDivider(color = c.divider.copy(alpha = 0.5f))
     }
 }

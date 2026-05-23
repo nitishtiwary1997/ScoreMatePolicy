@@ -76,19 +76,7 @@ import com.nitish.cricketscoringapp.domain.model.BowlingStyle
 import com.nitish.cricketscoringapp.domain.model.PlayerRole
 import com.nitish.cricketscoringapp.domain.model.TournamentPlayer
 import com.nitish.cricketscoringapp.domain.model.TournamentTeam
-import com.nitish.cricketscoringapp.ui.theme.CricketRed
-import com.nitish.cricketscoringapp.ui.theme.DarkBg
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface2
-import com.nitish.cricketscoringapp.ui.theme.DividerColor
-import com.nitish.cricketscoringapp.ui.theme.EmeraldContainer
-import com.nitish.cricketscoringapp.ui.theme.EmeraldDark
-import com.nitish.cricketscoringapp.ui.theme.EmeraldPrimary
-import com.nitish.cricketscoringapp.ui.theme.GoldPrimary
-import com.nitish.cricketscoringapp.ui.theme.OutlineColor
-import com.nitish.cricketscoringapp.ui.theme.TextPrimary
-import com.nitish.cricketscoringapp.ui.theme.TextSecondary
-import com.nitish.cricketscoringapp.ui.theme.TextTertiary
+import com.nitish.cricketscoringapp.ui.theme.*
 import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,6 +86,7 @@ fun TeamDetailScreen(
     onPlayerClick: (playerId: String) -> Unit,
     viewModel: TeamDetailViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val team by viewModel.team.collectAsState()
     val players by viewModel.players.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
@@ -114,7 +103,7 @@ fun TeamDetailScreen(
     }
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         snackbarHost = { SnackbarHost(snackbarHost) },
         topBar = {
             TopAppBar(
@@ -124,7 +113,7 @@ fun TeamDetailScreen(
                             team?.name ?: "Team",
                             fontWeight = FontWeight.Black,
                             fontSize = 17.sp,
-                            color = TextPrimary,
+                            color = c.textPrimary,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -137,10 +126,10 @@ fun TeamDetailScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Back", tint = TextSecondary)
+                        Icon(Icons.Default.ArrowBack, "Back", tint = c.textSecondary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = c.bg)
             )
         },
         floatingActionButton = {
@@ -165,7 +154,7 @@ fun TeamDetailScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(DarkBg)
+                    .background(c.bg)
                     .padding(padding),
                 contentPadding = PaddingValues(
                     start = 16.dp, end = 16.dp, top = 8.dp, bottom = 120.dp
@@ -212,8 +201,8 @@ fun TeamDetailScreen(
     deleteTarget?.let { p ->
         AlertDialog(
             onDismissRequest = { deleteTarget = null },
-            containerColor = DarkSurface,
-            titleContentColor = TextPrimary,
+            containerColor = c.surface,
+            titleContentColor = c.textPrimary,
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Icon(Icons.Default.Delete, null, tint = CricketRed, modifier = Modifier.size(20.dp))
@@ -224,7 +213,7 @@ fun TeamDetailScreen(
                 Text(
                     "Remove ${p.name} from this team?",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
+                    color = c.textSecondary
                 )
             },
             confirmButton = {
@@ -235,7 +224,7 @@ fun TeamDetailScreen(
             },
             dismissButton = {
                 TextButton(onClick = { deleteTarget = null }) {
-                    Text("Cancel", color = TextSecondary)
+                    Text("Cancel", color = c.textSecondary)
                 }
             }
         )
@@ -246,13 +235,14 @@ fun TeamDetailScreen(
 
 @Composable
 private fun TeamHeaderCard(team: TournamentTeam) {
+    val c = LocalAppColors.current
     val (avatarBg, avatarFg) = teamColors(team.name)
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(DarkSurface)
-            .border(1.dp, OutlineColor, RoundedCornerShape(14.dp))
+            .background(c.surface)
+            .border(1.dp, c.outline, RoundedCornerShape(14.dp))
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp)
@@ -267,9 +257,9 @@ private fun TeamHeaderCard(team: TournamentTeam) {
             Text(team.initials.take(2), fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = avatarFg)
         }
         Column(modifier = Modifier.weight(1f)) {
-            Text(team.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = TextPrimary)
+            Text(team.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = c.textPrimary)
             if (team.homeGround.isNotBlank()) {
-                Text(team.homeGround, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                Text(team.homeGround, style = MaterialTheme.typography.bodySmall, color = c.textSecondary)
             }
             if (team.shortName.isNotBlank()) {
                 Spacer(Modifier.height(4.dp))
@@ -330,6 +320,7 @@ private fun PlayerCard(
     onDelete: () -> Unit,
     onSetCaptain: () -> Unit
 ) {
+    val c = LocalAppColors.current
     var showMenu by remember { mutableStateOf(false) }
     val roleColor = when (player.role) {
         PlayerRole.BATSMAN       -> EmeraldPrimary
@@ -342,8 +333,8 @@ private fun PlayerCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(DarkSurface)
-            .border(1.dp, if (isCaptain) GoldPrimary.copy(alpha = 0.4f) else OutlineColor, RoundedCornerShape(12.dp))
+            .background(c.surface)
+            .border(1.dp, if (isCaptain) GoldPrimary.copy(alpha = 0.4f) else c.outline, RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
     ) {
         Row(
@@ -357,8 +348,8 @@ private fun PlayerCard(
             Box(
                 modifier = Modifier
                     .size(36.dp)
-                    .background(DarkSurface2, CircleShape)
-                    .border(1.dp, OutlineColor, CircleShape),
+                    .background(c.surface2, CircleShape)
+                    .border(1.dp, c.outline, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -378,7 +369,7 @@ private fun PlayerCard(
                         player.name,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = TextPrimary,
+                        color = c.textPrimary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false)
@@ -406,19 +397,19 @@ private fun PlayerCard(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 10.sp
                     )
-                    Text("·", color = TextTertiary, fontSize = 10.sp)
+                    Text("·", color = c.textTertiary, fontSize = 10.sp)
                     Text(
                         player.battingStyle.label.replace("Right Hand", "RHB").replace("Left Hand", "LHB"),
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextSecondary,
+                        color = c.textSecondary,
                         fontSize = 10.sp
                     )
                     if (player.canBowl && player.bowlingStyle != BowlingStyle.NONE) {
-                        Text("·", color = TextTertiary, fontSize = 10.sp)
+                        Text("·", color = c.textTertiary, fontSize = 10.sp)
                         Text(
                             player.bowlingStyle.label.take(12),
                             style = MaterialTheme.typography.labelSmall,
-                            color = TextSecondary,
+                            color = c.textSecondary,
                             fontSize = 10.sp,
                             maxLines = 1
                         )
@@ -432,12 +423,12 @@ private fun PlayerCard(
                         Icon(
                             if (isCaptain) Icons.Filled.Star else Icons.Outlined.StarBorder,
                             "Set Captain",
-                            tint = if (isCaptain) GoldPrimary else TextTertiary,
+                            tint = if (isCaptain) GoldPrimary else c.textTertiary,
                             modifier = Modifier.size(18.dp)
                         )
                     }
                     IconButton(onClick = { onDelete() }, modifier = Modifier.size(36.dp)) {
-                        Icon(Icons.Default.Delete, "Remove", tint = TextTertiary, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Default.Delete, "Remove", tint = c.textTertiary, modifier = Modifier.size(16.dp))
                     }
                 }
             }
@@ -453,31 +444,32 @@ private fun AddPlayerDialog(
     onDismiss: () -> Unit,
     onConfirm: (AddPlayerForm) -> Unit
 ) {
+    val c = LocalAppColors.current
     var form by remember { mutableStateOf(AddPlayerForm()) }
     var nameError by remember { mutableStateOf(false) }
     var bowlingExpanded by remember { mutableStateOf(false) }
 
     val fieldColors = OutlinedTextFieldDefaults.colors(
         focusedBorderColor = EmeraldPrimary,
-        unfocusedBorderColor = OutlineColor,
+        unfocusedBorderColor = c.outline,
         focusedLabelColor = EmeraldPrimary,
-        unfocusedLabelColor = TextSecondary,
+        unfocusedLabelColor = c.textSecondary,
         cursorColor = EmeraldPrimary,
-        focusedTextColor = TextPrimary,
-        unfocusedTextColor = TextPrimary,
+        focusedTextColor = c.textPrimary,
+        unfocusedTextColor = c.textPrimary,
         errorBorderColor = CricketRed
     )
     val chipColors = FilterChipDefaults.filterChipColors(
         selectedContainerColor = EmeraldDark,
         selectedLabelColor = EmeraldPrimary,
-        containerColor = DarkSurface2,
-        labelColor = TextSecondary
+        containerColor = c.surface2,
+        labelColor = c.textSecondary
     )
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = DarkSurface,
-        titleContentColor = TextPrimary,
+        containerColor = c.surface,
+        titleContentColor = c.textPrimary,
         title = {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Icon(Icons.Default.Person, null, tint = EmeraldPrimary, modifier = Modifier.size(20.dp))
@@ -500,7 +492,7 @@ private fun AddPlayerDialog(
                     )
                     OutlinedTextField(
                         value = form.jerseyNumber,
-                        onValueChange = { if (it.length <= 3) form = form.copy(jerseyNumber = it.filter { c -> c.isDigit() }) },
+                        onValueChange = { if (it.length <= 3) form = form.copy(jerseyNumber = it.filter { ch -> ch.isDigit() }) },
                         label = { Text("#") },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -510,7 +502,7 @@ private fun AddPlayerDialog(
                 }
 
                 // Role
-                Text("Role", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
+                Text("Role", style = MaterialTheme.typography.labelMedium, color = c.textSecondary)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     PlayerRole.entries.forEach { role ->
                         FilterChip(
@@ -523,7 +515,7 @@ private fun AddPlayerDialog(
                 }
 
                 // Batting Style
-                Text("Batting", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
+                Text("Batting", style = MaterialTheme.typography.labelMedium, color = c.textSecondary)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     BattingStyle.entries.forEach { style ->
                         FilterChip(
@@ -537,7 +529,7 @@ private fun AddPlayerDialog(
 
                 // Bowling Style (only if can bowl)
                 if (form.role != PlayerRole.BATSMAN) {
-                    Text("Bowling Style", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
+                    Text("Bowling Style", style = MaterialTheme.typography.labelMedium, color = c.textSecondary)
                     Box {
                         OutlinedTextField(
                             value = form.bowlingStyle.label,
@@ -555,7 +547,7 @@ private fun AddPlayerDialog(
                         ) {
                             BowlingStyle.entries.forEach { style ->
                                 DropdownMenuItem(
-                                    text = { Text(style.label, color = TextPrimary) },
+                                    text = { Text(style.label, color = c.textPrimary) },
                                     onClick = { form = form.copy(bowlingStyle = style); bowlingExpanded = false }
                                 )
                             }
@@ -574,7 +566,7 @@ private fun AddPlayerDialog(
             ) { Text("Add", fontWeight = FontWeight.Bold) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel", color = TextSecondary) }
+            TextButton(onClick = onDismiss) { Text("Cancel", color = c.textSecondary) }
         }
     )
 }
@@ -583,6 +575,7 @@ private fun AddPlayerDialog(
 
 @Composable
 private fun PlayerEmptyState(modifier: Modifier = Modifier, onAdd: () -> Unit) {
+    val c = LocalAppColors.current
     Column(
         modifier = modifier.padding(horizontal = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -598,12 +591,12 @@ private fun PlayerEmptyState(modifier: Modifier = Modifier, onAdd: () -> Unit) {
             Icon(Icons.Default.Group, null, tint = EmeraldPrimary, modifier = Modifier.size(48.dp))
         }
         Spacer(Modifier.height(20.dp))
-        Text("No Players Yet", style = MaterialTheme.typography.titleMedium, color = TextPrimary, fontWeight = FontWeight.Bold)
+        Text("No Players Yet", style = MaterialTheme.typography.titleMedium, color = c.textPrimary, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         Text(
             "Add players to the team. Tap the star icon to set the captain.",
             style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary,
+            color = c.textSecondary,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(24.dp))

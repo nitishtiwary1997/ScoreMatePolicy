@@ -61,21 +61,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nitish.cricketscoringapp.domain.model.Tournament
 import com.nitish.cricketscoringapp.domain.model.TournamentStatus
-import com.nitish.cricketscoringapp.ui.theme.CricketRed
-import com.nitish.cricketscoringapp.ui.theme.DarkBg
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface
-import com.nitish.cricketscoringapp.ui.theme.DarkSurface2
-import com.nitish.cricketscoringapp.ui.theme.DividerColor
-import com.nitish.cricketscoringapp.ui.theme.DoneGreen
-import com.nitish.cricketscoringapp.ui.theme.EmeraldContainer
-import com.nitish.cricketscoringapp.ui.theme.EmeraldPrimary
-import com.nitish.cricketscoringapp.ui.theme.GoldContainer
-import com.nitish.cricketscoringapp.ui.theme.GoldPrimary
-import com.nitish.cricketscoringapp.ui.theme.LiveRed
-import com.nitish.cricketscoringapp.ui.theme.OutlineColor
-import com.nitish.cricketscoringapp.ui.theme.TextPrimary
-import com.nitish.cricketscoringapp.ui.theme.TextSecondary
-import com.nitish.cricketscoringapp.ui.theme.TextTertiary
+import com.nitish.cricketscoringapp.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -88,11 +74,12 @@ fun TournamentListScreen(
     onTournamentClick: (String) -> Unit,
     viewModel: TournamentListViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val uiState by viewModel.uiState.collectAsState()
     var deleteTarget by remember { mutableStateOf<Tournament?>(null) }
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         topBar = {
             TopAppBar(
                 title = {
@@ -120,18 +107,18 @@ fun TournamentListScreen(
                             "Tournaments",
                             fontWeight = FontWeight.Black,
                             fontSize = 18.sp,
-                            color = TextPrimary
+                            color = c.textPrimary
                         )
                     }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = TextSecondary)
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = c.textSecondary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkBg,
-                    titleContentColor = TextPrimary
+                    containerColor = c.bg,
+                    titleContentColor = c.textPrimary
                 )
             )
         },
@@ -171,7 +158,7 @@ fun TournamentListScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(DarkBg)
+                        .background(c.bg)
                         .padding(padding),
                     contentPadding = PaddingValues(
                         start = 16.dp,
@@ -196,8 +183,8 @@ fun TournamentListScreen(
     deleteTarget?.let { t ->
         AlertDialog(
             onDismissRequest = { deleteTarget = null },
-            containerColor = DarkSurface,
-            titleContentColor = TextPrimary,
+            containerColor = c.surface,
+            titleContentColor = c.textPrimary,
             title = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -211,7 +198,7 @@ fun TournamentListScreen(
                 Text(
                     "Delete \"${t.name}\"? This will remove all teams, players, and fixtures. This action cannot be undone.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
+                    color = c.textSecondary
                 )
             },
             confirmButton = {
@@ -227,7 +214,7 @@ fun TournamentListScreen(
             },
             dismissButton = {
                 TextButton(onClick = { deleteTarget = null }) {
-                    Text("Cancel", color = TextSecondary)
+                    Text("Cancel", color = c.textSecondary)
                 }
             }
         )
@@ -242,19 +229,20 @@ private fun TournamentCard(
     onClick: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val c = LocalAppColors.current
     val (statusColor, statusBg, statusLabel) = when (tournament.status) {
         TournamentStatus.UPCOMING  -> Triple(GoldPrimary, GoldContainer, "UPCOMING")
         TournamentStatus.ONGOING   -> Triple(LiveRed, Color(0x1FFF4444), "LIVE")
         TournamentStatus.COMPLETED -> Triple(DoneGreen, EmeraldContainer, "DONE")
-        TournamentStatus.CANCELLED -> Triple(TextTertiary, DarkSurface2, "CANCELLED")
+        TournamentStatus.CANCELLED -> Triple(c.textTertiary, c.surface2, "CANCELLED")
     }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(DarkSurface)
-            .border(1.dp, OutlineColor, RoundedCornerShape(16.dp))
+            .background(c.surface)
+            .border(1.dp, c.outline, RoundedCornerShape(16.dp))
             .clickable(onClick = onClick)
     ) {
         // Left accent stripe
@@ -293,7 +281,7 @@ private fun TournamentCard(
                     Icon(
                         Icons.Default.Delete,
                         contentDescription = "Delete",
-                        tint = TextTertiary,
+                        tint = c.textTertiary,
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -306,7 +294,7 @@ private fun TournamentCard(
                 tournament.name,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Black,
-                color = TextPrimary,
+                color = c.textPrimary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -316,14 +304,14 @@ private fun TournamentCard(
                 Text(
                     "by ${tournament.organizerName}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = TextSecondary,
+                    color = c.textSecondary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
 
             Spacer(Modifier.height(12.dp))
-            HorizontalDivider(color = DividerColor, thickness = 0.5.dp)
+            HorizontalDivider(color = c.divider, thickness = 0.5.dp)
             Spacer(Modifier.height(10.dp))
 
             // Footer: dates + teams
@@ -339,13 +327,13 @@ private fun TournamentCard(
                     Icon(
                         Icons.Default.CalendarToday,
                         contentDescription = null,
-                        tint = TextTertiary,
+                        tint = c.textTertiary,
                         modifier = Modifier.size(12.dp)
                     )
                     Text(
                         formatDateRange(tournament.startDate, tournament.endDate),
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextSecondary,
+                        color = c.textSecondary,
                         fontSize = 11.sp
                     )
                 }
@@ -356,13 +344,13 @@ private fun TournamentCard(
                     Icon(
                         Icons.Default.Group,
                         contentDescription = null,
-                        tint = TextTertiary,
+                        tint = c.textTertiary,
                         modifier = Modifier.size(12.dp)
                     )
                     Text(
                         "Max ${tournament.maxTeams} teams",
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextSecondary,
+                        color = c.textSecondary,
                         fontSize = 11.sp
                     )
                 }
@@ -370,7 +358,7 @@ private fun TournamentCard(
                     Text(
                         tournament.venue,
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextTertiary,
+                        color = c.textTertiary,
                         fontSize = 10.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -405,16 +393,17 @@ private fun StatusPill(label: String, color: Color, bgColor: Color) {
 
 @Composable
 private fun TypePill(label: String) {
+    val c = LocalAppColors.current
     Box(
         modifier = Modifier
-            .background(DarkSurface2, RoundedCornerShape(5.dp))
-            .border(1.dp, OutlineColor, RoundedCornerShape(5.dp))
+            .background(c.surface2, RoundedCornerShape(5.dp))
+            .border(1.dp, c.outline, RoundedCornerShape(5.dp))
             .padding(horizontal = 7.dp, vertical = 2.dp)
     ) {
         Text(
             label,
             style = MaterialTheme.typography.labelSmall,
-            color = TextSecondary,
+            color = c.textSecondary,
             fontSize = 9.sp
         )
     }
@@ -445,6 +434,7 @@ private fun TournamentEmptyState(
     modifier: Modifier = Modifier,
     onCreateTournament: () -> Unit
 ) {
+    val c = LocalAppColors.current
     Column(
         modifier = modifier.padding(horizontal = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -468,14 +458,14 @@ private fun TournamentEmptyState(
         Text(
             "No Tournaments Yet",
             style = MaterialTheme.typography.titleMedium,
-            color = TextPrimary,
+            color = c.textPrimary,
             fontWeight = FontWeight.Bold
         )
         Spacer(Modifier.height(8.dp))
         Text(
             "Create your first cricket tournament and manage teams, fixtures, and live scores — all in one place.",
             style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary,
+            color = c.textSecondary,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(28.dp))

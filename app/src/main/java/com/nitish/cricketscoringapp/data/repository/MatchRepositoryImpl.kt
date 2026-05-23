@@ -129,6 +129,20 @@ class MatchRepositoryImpl @Inject constructor(
 
     override suspend fun saveTeam(team: SavedTeam) {
         savedTeamDao.upsertSavedTeam(team.toEntity())
+        syncScope.launch {
+            try {
+                firebase.saveSavedTeam(team)
+            } catch (_: Exception) { }
+        }
+    }
+
+    override suspend fun deleteTeam(teamName: String) {
+        savedTeamDao.deleteSavedTeam(teamName)
+        syncScope.launch {
+            try {
+                firebase.deleteSavedTeam(teamName)
+            } catch (_: Exception) { }
+        }
     }
 
     override suspend fun setTournamentContext(matchId: String, tournamentId: String, fixtureId: String) {
@@ -141,12 +155,19 @@ class MatchRepositoryImpl @Inject constructor(
     override suspend fun syncFromCloud() {
         try {
             val data = firebase.fetchAllUserData()
-            if (data.matches.isEmpty()) return
-            // Mark as already synced — they came FROM Firebase
-            matchDao.insertMatches(data.matches.map { it.toEntity().copy(isSynced = true) })
-            playerDao.insertPlayers(data.players.map { it.toEntity().copy(isSynced = true) })
-            if (data.balls.isNotEmpty())
-                ballDao.insertBalls(data.balls.map { it.toEntity().copy(isSynced = true) })
+            if (data.matches.isEmpty() && data.savedTeams.isEmpty()) return
+            if (data.matches.isNotEmpty()) {
+                // Mark as already synced — they came FROM Firebase
+                matchDao.insertMatches(data.matches.map { it.toEntity().copy(isSynced = true) })
+                playerDao.insertPlayers(data.players.map { it.toEntity().copy(isSynced = true) })
+                if (data.balls.isNotEmpty())
+                    ballDao.insertBalls(data.balls.map { it.toEntity().copy(isSynced = true) })
+            }
+            if (data.savedTeams.isNotEmpty()) {
+                for (team in data.savedTeams) {
+                    savedTeamDao.upsertSavedTeam(team.toEntity())
+                }
+            }
         } catch (_: Exception) { }
     }
 
