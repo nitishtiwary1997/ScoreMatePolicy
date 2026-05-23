@@ -69,6 +69,12 @@ class CreateMatchViewModel @Inject constructor(
         }
     }
 
+    fun deleteSavedTeam(teamName: String) {
+        viewModelScope.launch {
+            repository.deleteTeam(teamName)
+        }
+    }
+
     fun loadSavedTeamPlayers(playerNames: List<String>) {
         val state = _uiState.value
         if (state.addingForTeam == 1) {

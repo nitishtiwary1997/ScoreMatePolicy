@@ -24,5 +24,7 @@ data class MatchEntity(
     val innings2BowlerId: String = "",
     val innings2Completed: Boolean = false,
     val createdAt: Long = System.currentTimeMillis(),
-    val isSynced: Boolean = false
+    val isSynced: Boolean = false,
+    val tournamentId: String? = null,
+    val fixtureId: String? = null
 )

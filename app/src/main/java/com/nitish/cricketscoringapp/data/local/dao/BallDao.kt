@@ -27,6 +27,9 @@ interface BallDao {
     @Query("SELECT * FROM balls WHERE matchId = :matchId ORDER BY innings ASC, overNumber ASC, timestamp ASC")
     suspend fun getBallsForMatchSync(matchId: String): List<BallEntity>
 
+    @Query("SELECT * FROM balls WHERE matchId = :matchId AND innings = :innings ORDER BY overNumber ASC, timestamp ASC")
+    suspend fun getBallsForInningsSync(matchId: String, innings: Int): List<BallEntity>
+
     @Query("SELECT * FROM balls WHERE userId = :userId AND isSynced = 0")
     suspend fun getUnsyncedBalls(userId: String): List<BallEntity>
 

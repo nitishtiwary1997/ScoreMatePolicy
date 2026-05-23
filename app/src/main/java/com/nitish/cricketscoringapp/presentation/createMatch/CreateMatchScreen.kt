@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -38,6 +39,7 @@ fun CreateMatchScreen(
     onBack: () -> Unit,
     viewModel: CreateMatchViewModel = hiltViewModel()
 ) {
+    val c = LocalAppColors.current
     val state by viewModel.uiState.collectAsState()
 
     var showLoadDialog by remember { mutableStateOf(false) }
@@ -48,7 +50,7 @@ fun CreateMatchScreen(
     }
 
     Scaffold(
-        containerColor = DarkBg,
+        containerColor = c.bg,
         topBar = {
             TopAppBar(
                 title = {
@@ -57,12 +59,12 @@ fun CreateMatchScreen(
                             "New Match",
                             fontWeight = FontWeight.Black,
                             fontSize = 18.sp,
-                            color = TextPrimary
+                            color = c.textPrimary
                         )
                         Text(
                             "Configure match settings",
                             fontSize = 11.sp,
-                            color = TextSecondary
+                            color = c.textSecondary
                         )
                     }
                 },
@@ -72,8 +74,8 @@ fun CreateMatchScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = DarkBg,
-                    titleContentColor = TextPrimary
+                    containerColor = c.bg,
+                    titleContentColor = c.textPrimary
                 )
             )
         }
@@ -81,7 +83,7 @@ fun CreateMatchScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(DarkBg)
+                .background(c.bg)
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
@@ -142,11 +144,11 @@ fun CreateMatchScreen(
                                 if (selected)
                                     Brush.horizontalGradient(listOf(EmeraldPrimary, EmeraldDark))
                                 else
-                                    Brush.horizontalGradient(listOf(DarkSurface, DarkSurface))
+                                    Brush.horizontalGradient(listOf(c.surface, c.surface))
                             )
                             .border(
                                 1.dp,
-                                if (selected) EmeraldPrimary else OutlineColor,
+                                if (selected) EmeraldPrimary else c.outline,
                                 RoundedCornerShape(12.dp)
                             )
                     ) {
@@ -157,7 +159,7 @@ fun CreateMatchScreen(
                         ) {
                             Text(
                                 name,
-                                color = if (selected) Color.Black else TextSecondary,
+                                color = if (selected) Color.Black else c.textSecondary,
                                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
                                 fontSize = 13.sp
                             )
@@ -214,7 +216,7 @@ fun CreateMatchScreen(
                         colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = EmeraldPrimary,
                             contentColor = Color.Black,
-                            disabledContainerColor = DarkSurface2
+                            disabledContainerColor = c.surface2
                         )
                     ) {
                         Icon(Icons.Default.Add, "Add player")
@@ -226,14 +228,14 @@ fun CreateMatchScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(DarkSurface2, RoundedCornerShape(10.dp))
+                            .background(c.surface2, RoundedCornerShape(10.dp))
                             .padding(16.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             "No players added yet",
                             style = MaterialTheme.typography.bodySmall,
-                            color = TextTertiary
+                            color = c.textTertiary
                         )
                     }
                 } else {
@@ -242,7 +244,7 @@ fun CreateMatchScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(DarkSurface2, RoundedCornerShape(10.dp))
+                                    .background(c.surface2, RoundedCornerShape(10.dp))
                                     .padding(horizontal = 12.dp, vertical = 8.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
@@ -267,7 +269,7 @@ fun CreateMatchScreen(
                                     Text(
                                         name,
                                         style = MaterialTheme.typography.bodyMedium,
-                                        color = TextPrimary
+                                        color = c.textPrimary
                                     )
                                 }
                                 IconButton(
@@ -288,7 +290,7 @@ fun CreateMatchScreen(
 
                 // Save team row — shown when there are players and team name is filled
                 if (players.isNotEmpty() && currentTeamName.isNotBlank()) {
-                    HorizontalDivider(color = DividerColor)
+                    HorizontalDivider(color = c.divider)
                     Row(
                         Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -310,7 +312,7 @@ fun CreateMatchScreen(
                             border = androidx.compose.foundation.BorderStroke(1.dp, EmeraldPrimary.copy(alpha = 0.5f)),
                             colors = ButtonDefaults.outlinedButtonColors(
                                 contentColor = EmeraldPrimary,
-                                containerColor = DarkSurface
+                                containerColor = c.surface
                             )
                         ) {
                             Icon(Icons.Default.Bookmark, null, Modifier.size(14.dp))
@@ -345,8 +347,8 @@ fun CreateMatchScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = EmeraldPrimary,
                     contentColor = Color.Black,
-                    disabledContainerColor = DarkSurface2,
-                    disabledContentColor = TextTertiary
+                    disabledContainerColor = c.surface2,
+                    disabledContentColor = c.textTertiary
                 )
             ) {
                 if (state.isCreating) {
@@ -366,6 +368,9 @@ fun CreateMatchScreen(
                 onTeamSelected = { team ->
                     pickedTeam = team
                     showLoadDialog = false
+                },
+                onDeleteTeam = { teamName ->
+                    viewModel.deleteSavedTeam(teamName)
                 },
                 onDismiss = { showLoadDialog = false }
             )
@@ -389,43 +394,60 @@ fun CreateMatchScreen(
 private fun SavedTeamListDialog(
     savedTeams: List<SavedTeam>,
     onTeamSelected: (SavedTeam) -> Unit,
+    onDeleteTeam: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val c = LocalAppColors.current
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = DarkSurface,
-        titleContentColor = TextPrimary,
+        containerColor = c.surface,
+        titleContentColor = c.textPrimary,
         title = { Text("Saved Teams", fontWeight = FontWeight.Bold) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
                 savedTeams.forEach { team ->
-                    TextButton(
-                        onClick = { onTeamSelected(team) },
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(DarkSurface2, RoundedCornerShape(10.dp))
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(c.surface2)
+                            .clickable { onTeamSelected(team) }
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.weight(1f)
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Icon(
-                                    Icons.Default.Group,
-                                    null,
-                                    Modifier.size(16.dp),
-                                    tint = EmeraldPrimary
+                            Icon(
+                                Icons.Default.Group,
+                                null,
+                                Modifier.size(16.dp),
+                                tint = EmeraldPrimary
+                            )
+                            Column {
+                                Text(team.name, color = c.textPrimary, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    "${team.playerNames.size} players",
+                                    color = c.textSecondary,
+                                    style = MaterialTheme.typography.labelSmall
                                 )
-                                Text(team.name, color = TextPrimary, fontWeight = FontWeight.SemiBold)
                             }
-                            Text(
-                                "${team.playerNames.size} players",
-                                color = TextSecondary,
-                                style = MaterialTheme.typography.labelSmall
+                        }
+                        IconButton(
+                            onClick = { onDeleteTeam(team.name) },
+                            modifier = Modifier.size(36.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Delete,
+                                "Delete team",
+                                tint = CricketRed,
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }
@@ -434,7 +456,7 @@ private fun SavedTeamListDialog(
         },
         confirmButton = {},
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel", color = TextSecondary) }
+            TextButton(onClick = onDismiss) { Text("Cancel", color = c.textSecondary) }
         }
     )
 }
@@ -445,20 +467,21 @@ private fun PlayerPickerDialog(
     onConfirm: (List<String>) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val c = LocalAppColors.current
     val checked = remember {
         mutableStateMapOf<String, Boolean>().also { m -> team.playerNames.forEach { m[it] = true } }
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = DarkSurface,
-        titleContentColor = TextPrimary,
+        containerColor = c.surface,
+        titleContentColor = c.textPrimary,
         title = {
             Column {
                 Text(team.name, fontWeight = FontWeight.Bold)
                 Text(
                     "Select players for this match",
                     style = MaterialTheme.typography.labelSmall,
-                    color = TextSecondary
+                    color = c.textSecondary
                 )
             }
         },
@@ -469,7 +492,7 @@ private fun PlayerPickerDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(8.dp))
-                            .background(if (checked[name] == true) EmeraldContainer else DarkSurface2)
+                            .background(if (checked[name] == true) EmeraldContainer else c.surface2)
                             .clickable { checked[name] = !(checked[name] ?: true) }
                             .padding(horizontal = 4.dp, vertical = 2.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -480,11 +503,11 @@ private fun PlayerPickerDialog(
                             onCheckedChange = { checked[name] = it },
                             colors = CheckboxDefaults.colors(
                                 checkedColor = EmeraldPrimary,
-                                uncheckedColor = TextSecondary,
+                                uncheckedColor = c.textSecondary,
                                 checkmarkColor = Color.Black
                             )
                         )
-                        Text(name, color = TextPrimary, style = MaterialTheme.typography.bodyMedium)
+                        Text(name, color = c.textPrimary, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }
@@ -499,7 +522,7 @@ private fun PlayerPickerDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel", color = TextSecondary) }
+            TextButton(onClick = onDismiss) { Text("Cancel", color = c.textSecondary) }
         }
     )
 }
@@ -513,11 +536,12 @@ private fun SectionCard(
     subtitle: String? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val c = LocalAppColors.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkSurface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, OutlineColor)
+        colors = CardDefaults.cardColors(containerColor = c.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, c.outline)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -532,15 +556,15 @@ private fun SectionCard(
                     Text(
                         title,
                         style = MaterialTheme.typography.titleSmall,
-                        color = TextPrimary,
+                        color = c.textPrimary,
                         fontWeight = FontWeight.Bold
                     )
                     if (subtitle != null) {
-                        Text(subtitle, style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                        Text(subtitle, style = MaterialTheme.typography.labelSmall, color = c.textSecondary)
                     }
                 }
             }
-            HorizontalDivider(color = DividerColor)
+            HorizontalDivider(color = c.divider)
             content()
         }
     }
@@ -555,24 +579,25 @@ private fun DarkOutlinedTextField(
     modifier: Modifier = Modifier.fillMaxWidth(),
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
+    val c = LocalAppColors.current
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label, color = TextSecondary) },
+        label = { Text(label, color = c.textSecondary) },
         modifier = modifier,
         keyboardOptions = keyboardOptions,
         singleLine = true,
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = TextPrimary,
-            unfocusedTextColor = TextPrimary,
+            focusedTextColor = c.textPrimary,
+            unfocusedTextColor = c.textPrimary,
             focusedBorderColor = EmeraldPrimary,
-            unfocusedBorderColor = OutlineColor,
+            unfocusedBorderColor = c.outline,
             focusedLabelColor = EmeraldPrimary,
-            unfocusedLabelColor = TextSecondary,
+            unfocusedLabelColor = c.textSecondary,
             cursorColor = EmeraldPrimary,
-            focusedContainerColor = DarkSurface2,
-            unfocusedContainerColor = DarkSurface2
+            focusedContainerColor = c.surface2,
+            unfocusedContainerColor = c.surface2
         )
     )
 }

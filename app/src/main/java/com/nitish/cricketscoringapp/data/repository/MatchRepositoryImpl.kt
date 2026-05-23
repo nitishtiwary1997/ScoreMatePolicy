@@ -54,11 +54,20 @@ class MatchRepositoryImpl @Inject constructor(
     override fun getMatchById(matchId: String): Flow<Match?> =
         matchDao.getMatchById(matchId).map { it?.toDomain() }
 
+    override suspend fun getMatchByIdSync(matchId: String): Match? =
+        matchDao.getMatchByIdSync(matchId)?.toDomain()
+
+    override fun getMatchesByTournament(tournamentId: String): Flow<List<Match>> =
+        matchDao.getMatchesByTournament(tournamentId).map { list -> list.map { it.toDomain() } }
+
     override fun getPlayersForMatch(matchId: String): Flow<List<Player>> =
         playerDao.getPlayersForMatch(matchId).map { list -> list.map { it.toDomain() } }
 
     override fun getBallsForInnings(matchId: String, innings: Int): Flow<List<Ball>> =
         ballDao.getBallsForInnings(matchId, innings).map { list -> list.map { it.toDomain() } }
+
+    override suspend fun getBallsForInningsSync(matchId: String, innings: Int): List<Ball> =
+        ballDao.getBallsForInningsSync(matchId, innings).map { it.toDomain() }
 
     override fun getSavedTeams(): Flow<List<SavedTeam>> =
         savedTeamDao.getAllSavedTeams().map { list -> list.map { it.toDomain() } }
@@ -120,6 +129,24 @@ class MatchRepositoryImpl @Inject constructor(
 
     override suspend fun saveTeam(team: SavedTeam) {
         savedTeamDao.upsertSavedTeam(team.toEntity())
+        syncScope.launch {
+            try {
+                firebase.saveSavedTeam(team)
+            } catch (_: Exception) { }
+        }
+    }
+
+    override suspend fun deleteTeam(teamName: String) {
+        savedTeamDao.deleteSavedTeam(teamName)
+        syncScope.launch {
+            try {
+                firebase.deleteSavedTeam(teamName)
+            } catch (_: Exception) { }
+        }
+    }
+
+    override suspend fun setTournamentContext(matchId: String, tournamentId: String, fixtureId: String) {
+        matchDao.setTournamentContext(matchId, tournamentId, fixtureId)
     }
 
     // ── Cloud sync ────────────────────────────────────────────────────────────
@@ -128,12 +155,19 @@ class MatchRepositoryImpl @Inject constructor(
     override suspend fun syncFromCloud() {
         try {
             val data = firebase.fetchAllUserData()
-            if (data.matches.isEmpty()) return
-            // Mark as already synced — they came FROM Firebase
-            matchDao.insertMatches(data.matches.map { it.toEntity().copy(isSynced = true) })
-            playerDao.insertPlayers(data.players.map { it.toEntity().copy(isSynced = true) })
-            if (data.balls.isNotEmpty())
-                ballDao.insertBalls(data.balls.map { it.toEntity().copy(isSynced = true) })
+            if (data.matches.isEmpty() && data.savedTeams.isEmpty()) return
+            if (data.matches.isNotEmpty()) {
+                // Mark as already synced — they came FROM Firebase
+                matchDao.insertMatches(data.matches.map { it.toEntity().copy(isSynced = true) })
+                playerDao.insertPlayers(data.players.map { it.toEntity().copy(isSynced = true) })
+                if (data.balls.isNotEmpty())
+                    ballDao.insertBalls(data.balls.map { it.toEntity().copy(isSynced = true) })
+            }
+            if (data.savedTeams.isNotEmpty()) {
+                for (team in data.savedTeams) {
+                    savedTeamDao.upsertSavedTeam(team.toEntity())
+                }
+            }
         } catch (_: Exception) { }
     }
 
@@ -225,7 +259,9 @@ class MatchRepositoryImpl @Inject constructor(
         innings1BowlerId = innings1BowlerId, innings1Completed = innings1Completed,
         innings2OnStrikeId = innings2OnStrikeId, innings2OffStrikeId = innings2OffStrikeId,
         innings2BowlerId = innings2BowlerId, innings2Completed = innings2Completed,
-        createdAt = createdAt
+        createdAt = createdAt,
+        tournamentId = tournamentId,
+        fixtureId = fixtureId
     )
 
     private fun Match.toEntity() = MatchEntity(
@@ -240,7 +276,9 @@ class MatchRepositoryImpl @Inject constructor(
         innings2OnStrikeId = innings2OnStrikeId, innings2OffStrikeId = innings2OffStrikeId,
         innings2BowlerId = innings2BowlerId, innings2Completed = innings2Completed,
         createdAt = createdAt,
-        isSynced = false   // always reset on write; Firebase sync marks it true
+        isSynced = false,
+        tournamentId = tournamentId,
+        fixtureId = fixtureId
     )
 
     private fun PlayerEntity.toDomain() = Player(id = id, name = name, matchId = matchId, team = team)
