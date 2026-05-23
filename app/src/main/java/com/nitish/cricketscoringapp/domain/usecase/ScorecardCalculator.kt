@@ -87,40 +87,64 @@ object ScorecardCalculator {
             }
 
             if (ball.isWicket) {
-                wickets++
                 val dismissedId = ball.dismissedPlayerId ?: ball.batsmanId
                 val bowlerName = playerMap[ball.bowlerId]?.name ?: ""
                 val f1Id = ball.fielderIds.getOrNull(0)
                 val f2Id = ball.fielderIds.getOrNull(1)
                 val f1Name = f1Id?.let { playerMap[it]?.name }.orEmpty()
                 val f2Name = f2Id?.let { playerMap[it]?.name }
-                val dismissalDesc = when (ball.wicketType) {
-                    WicketType.BOWLED     -> "b $bowlerName"
-                    WicketType.CAUGHT     -> if (f1Id == null || f1Id == ball.bowlerId) "c & b $bowlerName"
-                                            else "c $f1Name b $bowlerName"
-                    WicketType.LBW        -> "lbw b $bowlerName"
-                    WicketType.RUN_OUT    -> when {
-                                                f1Name.isEmpty() -> "run out"
-                                                f2Name != null   -> "run out ($f1Name/$f2Name)"
-                                                else             -> "run out ($f1Name)"
-                                            }
-                    WicketType.STUMPED    -> if (f1Name.isEmpty()) "st b $bowlerName"
-                                            else "st $f1Name b $bowlerName"
-                    WicketType.HIT_WICKET -> "hit wkt b $bowlerName"
-                    null                  -> "out"
+
+                when (ball.wicketType) {
+                    WicketType.RETIRED_HURT -> {
+                        // Not out — no wicket, no FoW, no bowler credit. Can return later.
+                        batsmanDismissalMap[dismissedId] = "retired hurt"
+                    }
+                    WicketType.RETIRED_OUT -> {
+                        // Out — counts as wicket, FoW recorded. Bowler does NOT get credit
+                        // (same convention as run out).
+                        wickets++
+                        val dismissalDesc = "retired out"
+                        batsmanDismissalMap[dismissedId] = dismissalDesc
+                        val fowOver = "${totalLegalBalls / 6}.${totalLegalBalls % 6}"
+                        fowList.add(FallOfWicket(
+                            wicketNumber  = wickets,
+                            playerName    = playerMap[dismissedId]?.name ?: "",
+                            dismissalInfo = dismissalDesc,
+                            score         = totalRuns,
+                            overDisplay   = fowOver
+                        ))
+                    }
+                    else -> {
+                        wickets++
+                        val dismissalDesc = when (ball.wicketType) {
+                            WicketType.BOWLED     -> "b $bowlerName"
+                            WicketType.CAUGHT     -> if (f1Id == null || f1Id == ball.bowlerId) "c & b $bowlerName"
+                                                    else "c $f1Name b $bowlerName"
+                            WicketType.LBW        -> "lbw b $bowlerName"
+                            WicketType.RUN_OUT    -> when {
+                                                        f1Name.isEmpty() -> "run out"
+                                                        f2Name != null   -> "run out ($f1Name/$f2Name)"
+                                                        else             -> "run out ($f1Name)"
+                                                    }
+                            WicketType.STUMPED    -> if (f1Name.isEmpty()) "st b $bowlerName"
+                                                    else "st $f1Name b $bowlerName"
+                            WicketType.HIT_WICKET -> "hit wkt b $bowlerName"
+                            else                  -> "out"
+                        }
+                        batsmanDismissalMap[dismissedId] = dismissalDesc
+                        if (ball.wicketType != WicketType.RUN_OUT) {
+                            bowlerWicketsMap[ball.bowlerId] = (bowlerWicketsMap[ball.bowlerId] ?: 0) + 1
+                        }
+                        val fowOver = "${totalLegalBalls / 6}.${totalLegalBalls % 6}"
+                        fowList.add(FallOfWicket(
+                            wicketNumber  = wickets,
+                            playerName    = playerMap[dismissedId]?.name ?: "",
+                            dismissalInfo = dismissalDesc,
+                            score         = totalRuns,
+                            overDisplay   = fowOver
+                        ))
+                    }
                 }
-                batsmanDismissalMap[dismissedId] = dismissalDesc
-                if (ball.wicketType != WicketType.RUN_OUT) {
-                    bowlerWicketsMap[ball.bowlerId] = (bowlerWicketsMap[ball.bowlerId] ?: 0) + 1
-                }
-                val fowOver = "${totalLegalBalls / 6}.${totalLegalBalls % 6}"
-                fowList.add(FallOfWicket(
-                    wicketNumber = wickets,
-                    playerName   = playerMap[dismissedId]?.name ?: "",
-                    dismissalInfo = dismissalDesc,
-                    score        = totalRuns,
-                    overDisplay  = fowOver
-                ))
             }
         }
 
@@ -133,6 +157,8 @@ object ScorecardCalculator {
 
         val batsmen = allBatsmanIds.mapNotNull { id ->
             val player = playerMap[id] ?: return@mapNotNull null
+            // If the batsman is currently active (returned after retire hurt), clear dismissal
+            val activeAtCrease = id == onStrikeId || id == offStrikeId
             BatsmanScore(
                 player = player,
                 runs = batsmanRunsMap[id] ?: 0,
@@ -140,7 +166,7 @@ object ScorecardCalculator {
                 fours = batsmanFoursMap[id] ?: 0,
                 sixes = batsmanSixesMap[id] ?: 0,
                 isOnStrike = id == onStrikeId,
-                dismissalInfo = batsmanDismissalMap[id]
+                dismissalInfo = if (activeAtCrease) null else batsmanDismissalMap[id]
             )
         }
 
@@ -174,6 +200,8 @@ object ScorecardCalculator {
         val lastBall = balls.lastOrNull()
         val lastBallDesc = lastBall?.let { b ->
             when {
+                b.isWicket && b.wicketType == WicketType.RETIRED_HURT -> "RH"
+                b.isWicket && b.wicketType == WicketType.RETIRED_OUT  -> "RO"
                 b.isWicket -> "W"
                 b.extraType == ExtraType.WIDE -> "Wd+${b.totalRuns}"
                 b.extraType == ExtraType.NO_BALL -> "Nb+${b.runs}"

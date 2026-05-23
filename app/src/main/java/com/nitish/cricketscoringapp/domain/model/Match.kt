@@ -20,8 +20,11 @@ data class Match(
     val innings2OffStrikeId: String = "",
     val innings2BowlerId: String = "",
     val innings2Completed: Boolean = false,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    val tournamentId: String? = null,
+    val fixtureId: String? = null
 ) {
+    val isTournamentMatch: Boolean get() = tournamentId != null
     val innings2BattingTeam: Int get() = if (innings1BattingTeam == 1) 2 else 1
 
     fun currentInnings(): Int = if (status == MatchStatus.INNINGS_2) 2 else 1

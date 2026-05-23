@@ -13,6 +13,19 @@ import com.nitish.cricketscoringapp.presentation.scoring.ScoringScreen
 import com.nitish.cricketscoringapp.presentation.stats.PlayerStatsScreen
 import com.nitish.cricketscoringapp.presentation.summary.MatchSummaryScreen
 import com.nitish.cricketscoringapp.presentation.toss.TossScreen
+import com.nitish.cricketscoringapp.presentation.tournament.create.CreateTournamentScreen
+import com.nitish.cricketscoringapp.presentation.tournament.list.TournamentListScreen
+import com.nitish.cricketscoringapp.presentation.tournament.dashboard.TournamentDashboardScreen
+import com.nitish.cricketscoringapp.presentation.tournament.fixture.FixtureDetailScreen
+import com.nitish.cricketscoringapp.presentation.tournament.fixture.FixtureListScreen
+import com.nitish.cricketscoringapp.presentation.tournament.points.PointsTableScreen
+import com.nitish.cricketscoringapp.presentation.livescore.LiveScoreScreen
+import com.nitish.cricketscoringapp.presentation.tournament.bracket.KnockoutBracketScreen
+import com.nitish.cricketscoringapp.presentation.tournament.stats.TournamentStatsScreen
+import com.nitish.cricketscoringapp.presentation.tournament.team.PlayerProfileScreen
+import com.nitish.cricketscoringapp.presentation.tournament.team.TeamDetailScreen
+import com.nitish.cricketscoringapp.presentation.tournament.team.TeamManagementScreen
+import com.nitish.cricketscoringapp.presentation.rules.CricketRulesScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController, startOnLogin: Boolean) {
@@ -47,7 +60,8 @@ fun AppNavGraph(navController: NavHostController, startOnLogin: Boolean) {
                         popUpTo(Screen.Home.route) { inclusive = true }
                     }
                 },
-                onPlayerStats = { navController.navigate(Screen.PlayerStats.route) }
+                onPlayerStats = { navController.navigate(Screen.PlayerStats.route) },
+                onTournaments = { navController.navigate(Screen.TournamentList.route) }
             )
         }
 
@@ -101,6 +115,152 @@ fun AppNavGraph(navController: NavHostController, startOnLogin: Boolean) {
             MatchSummaryScreen(
                 onBack = { navController.navigate(Screen.Home.route) { popUpTo(Screen.Home.route) } }
             )
+        }
+
+        // ── Tournament Routes ─────────────────────────────────────────────────
+
+        composable(Screen.TournamentList.route) {
+            TournamentListScreen(
+                onBack = { navController.popBackStack() },
+                onCreateTournament = { navController.navigate(Screen.CreateTournament.route) },
+                onTournamentClick = { tournamentId ->
+                    navController.navigate(Screen.TournamentDashboard.createRoute(tournamentId))
+                }
+            )
+        }
+
+        composable(Screen.CreateTournament.route) {
+            CreateTournamentScreen(
+                onBack = { navController.popBackStack() },
+                onTournamentCreated = { tournamentId ->
+                    navController.navigate(Screen.TournamentDashboard.createRoute(tournamentId)) {
+                        popUpTo(Screen.TournamentList.route)
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = Screen.TournamentDashboard.route,
+            arguments = listOf(navArgument("tournamentId") { type = NavType.StringType })
+        ) {
+            val tournamentId = it.arguments?.getString("tournamentId") ?: return@composable
+            TournamentDashboardScreen(
+                onBack = { navController.popBackStack() },
+                onTeams = { navController.navigate(Screen.TeamManagement.createRoute(tournamentId)) },
+                onFixtures = { navController.navigate(Screen.FixtureList.createRoute(tournamentId)) },
+                onPointsTable = { navController.navigate(Screen.PointsTable.createRoute(tournamentId)) },
+                onKnockoutBracket = { navController.navigate(Screen.KnockoutBracket.createRoute(tournamentId)) },
+                onStats = { navController.navigate(Screen.TournamentStats.createRoute(tournamentId)) },
+                onLiveFixture = { matchId -> navController.navigate(Screen.Scoring.createRoute(matchId)) }
+            )
+        }
+
+        composable(
+            route = Screen.TeamManagement.route,
+            arguments = listOf(navArgument("tournamentId") { type = NavType.StringType })
+        ) {
+            val tournamentId = it.arguments?.getString("tournamentId") ?: return@composable
+            TeamManagementScreen(
+                onBack = { navController.popBackStack() },
+                onTeamClick = { teamId ->
+                    navController.navigate(Screen.TeamDetail.createRoute(tournamentId, teamId))
+                }
+            )
+        }
+
+        composable(
+            route = Screen.TeamDetail.route,
+            arguments = listOf(
+                navArgument("tournamentId") { type = NavType.StringType },
+                navArgument("teamId") { type = NavType.StringType }
+            )
+        ) {
+            val tournamentId = it.arguments?.getString("tournamentId") ?: return@composable
+            TeamDetailScreen(
+                onBack = { navController.popBackStack() },
+                onPlayerClick = { playerId ->
+                    navController.navigate(Screen.PlayerProfile.createRoute(tournamentId, playerId))
+                }
+            )
+        }
+
+        composable(
+            route = Screen.PlayerProfile.route,
+            arguments = listOf(
+                navArgument("tournamentId") { type = NavType.StringType },
+                navArgument("playerId") { type = NavType.StringType }
+            )
+        ) {
+            PlayerProfileScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(
+            route = Screen.FixtureList.route,
+            arguments = listOf(navArgument("tournamentId") { type = NavType.StringType })
+        ) {
+            val tournamentId = it.arguments?.getString("tournamentId") ?: return@composable
+            FixtureListScreen(
+                onBack = { navController.popBackStack() },
+                onFixtureClick = { fixtureId ->
+                    navController.navigate(Screen.FixtureDetail.createRoute(tournamentId, fixtureId))
+                }
+            )
+        }
+
+        composable(
+            route = Screen.FixtureDetail.route,
+            arguments = listOf(
+                navArgument("tournamentId") { type = NavType.StringType },
+                navArgument("fixtureId") { type = NavType.StringType }
+            )
+        ) {
+            FixtureDetailScreen(
+                onBack = { navController.popBackStack() },
+                onMatchStarted = { matchId ->
+                    navController.navigate(Screen.Toss.createRoute(matchId)) {
+                        popUpTo(Screen.FixtureDetail.route)
+                    }
+                },
+                onMatchClick = { matchId ->
+                    navController.navigate(Screen.Scoring.createRoute(matchId))
+                },
+                onWatchLive = { matchId ->
+                    navController.navigate(Screen.LiveScore.createRoute(matchId))
+                }
+            )
+        }
+
+        composable(
+            route = Screen.LiveScore.route,
+            arguments = listOf(navArgument("matchId") { type = NavType.StringType })
+        ) {
+            LiveScoreScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(
+            route = Screen.PointsTable.route,
+            arguments = listOf(navArgument("tournamentId") { type = NavType.StringType })
+        ) {
+            PointsTableScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(
+            route = Screen.KnockoutBracket.route,
+            arguments = listOf(navArgument("tournamentId") { type = NavType.StringType })
+        ) {
+            KnockoutBracketScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(
+            route = Screen.TournamentStats.route,
+            arguments = listOf(navArgument("tournamentId") { type = NavType.StringType })
+        ) {
+            TournamentStatsScreen(onBack = { navController.popBackStack() })
+        }
+
+        composable(Screen.CricketRules.route) {
+            CricketRulesScreen(onBack = { navController.popBackStack() })
         }
     }
 }

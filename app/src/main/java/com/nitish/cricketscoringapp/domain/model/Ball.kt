@@ -26,4 +26,11 @@ data class Ball(
 }
 
 enum class ExtraType { WIDE, NO_BALL, BYE, LEG_BYE }
-enum class WicketType { BOWLED, CAUGHT, LBW, RUN_OUT, STUMPED, HIT_WICKET }
+
+enum class WicketType {
+    BOWLED, CAUGHT, LBW, RUN_OUT, STUMPED, HIT_WICKET,
+    /** Injury/health/emergency — NOT out, no wicket, can return later in same innings. */
+    RETIRED_HURT,
+    /** Retired without valid reason/umpire permission — OUT, counts as wicket, cannot return. */
+    RETIRED_OUT
+}

@@ -2,6 +2,7 @@ package com.nitish.cricketscoringapp.presentation.scoring
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -116,11 +117,10 @@ fun ScoringScreen(
 
         // Dialogs
         when (val dialog = state.dialog) {
-            is ScoringDialog.SelectBatsman -> PlayerSelectionDialog(
-                title = "New Batsman",
+            is ScoringDialog.SelectBatsman -> BatsmanSelectionDialog(
                 players = dialog.available,
-                onSelected = viewModel::onSelectBatsman,
-                onDismiss = {}
+                retiredHurtIds = dialog.retiredHurtIds,
+                onSelected = viewModel::onSelectBatsman
             )
             is ScoringDialog.SelectBowler -> PlayerSelectionDialog(
                 title = "Select Bowler for Next Over",
@@ -534,20 +534,22 @@ private fun RunButton(
 
 @Composable
 private fun WicketTypeDialog(onWicket: (WicketType) -> Unit, onDismiss: () -> Unit) {
+    val retireHurtAmber = Color(0xFFFFAB00)
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = DarkSurface,
         titleContentColor = TextPrimary,
         textContentColor = TextSecondary,
-        title = { Text("How Out? 🚨", fontWeight = FontWeight.Bold) },
+        title = { Text("Wicket / Retire", fontWeight = FontWeight.Bold) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                // Standard dismissals
                 listOf(
-                    WicketType.BOWLED    to "Bowled",
-                    WicketType.CAUGHT    to "Caught",
-                    WicketType.LBW       to "LBW",
-                    WicketType.RUN_OUT   to "Run Out",
-                    WicketType.STUMPED   to "Stumped",
+                    WicketType.BOWLED     to "Bowled",
+                    WicketType.CAUGHT     to "Caught",
+                    WicketType.LBW        to "LBW",
+                    WicketType.RUN_OUT    to "Run Out",
+                    WicketType.STUMPED    to "Stumped",
                     WicketType.HIT_WICKET to "Hit Wicket"
                 ).forEach { (type, label) ->
                     TextButton(
@@ -557,6 +559,42 @@ private fun WicketTypeDialog(onWicket: (WicketType) -> Unit, onDismiss: () -> Un
                             .background(DarkSurface2, RoundedCornerShape(8.dp))
                     ) {
                         Text(label, color = CricketRed, fontWeight = FontWeight.SemiBold)
+                    }
+                }
+
+                // Divider before retire option
+                Spacer(Modifier.height(4.dp))
+                HorizontalDivider(color = retireHurtAmber.copy(alpha = 0.3f))
+                Spacer(Modifier.height(4.dp))
+
+                // Retire Hurt — NOT a wicket, batsman can return later
+                TextButton(
+                    onClick = { onWicket(WicketType.RETIRED_HURT) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(retireHurtAmber.copy(alpha = 0.08f), RoundedCornerShape(8.dp))
+                        .border(1.dp, retireHurtAmber.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("Retire Hurt", color = retireHurtAmber, fontWeight = FontWeight.Bold)
+                        Text("Injury/emergency — not out, can return", color = retireHurtAmber.copy(alpha = 0.6f), fontSize = 10.sp)
+                    }
+                }
+
+                Spacer(Modifier.height(4.dp))
+
+                // Retire Out — IS a wicket, batsman cannot return
+                val retireOutColor = Color(0xFFFF6D00)
+                TextButton(
+                    onClick = { onWicket(WicketType.RETIRED_OUT) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(retireOutColor.copy(alpha = 0.08f), RoundedCornerShape(8.dp))
+                        .border(1.dp, retireOutColor.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("Retire Out", color = retireOutColor, fontWeight = FontWeight.Bold)
+                        Text("No valid reason — OUT, cannot return", color = retireOutColor.copy(alpha = 0.6f), fontSize = 10.sp)
                     }
                 }
             }
@@ -788,6 +826,89 @@ private fun RunOutFielderDialog(
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel", color = TextSecondary) }
         }
+    )
+}
+
+@Composable
+private fun BatsmanSelectionDialog(
+    players: List<Player>,
+    retiredHurtIds: Set<String>,
+    onSelected: (String) -> Unit
+) {
+    val retireAmber = Color(0xFFFFAB00)
+    var selectedId by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = {},
+        containerColor = DarkSurface,
+        titleContentColor = TextPrimary,
+        title = { Text("New Batsman", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                if (retiredHurtIds.isNotEmpty()) {
+                    Text(
+                        "↩ Retired Hurt players can return to bat",
+                        color = retireAmber,
+                        fontSize = 11.sp
+                    )
+                }
+                players.forEach { player ->
+                    val isRH = player.id in retiredHurtIds
+                    val isSelected = player.id == selectedId
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(
+                                when {
+                                    isSelected && isRH -> retireAmber.copy(alpha = 0.2f)
+                                    isSelected -> EmeraldPrimary.copy(alpha = 0.15f)
+                                    isRH -> retireAmber.copy(alpha = 0.06f)
+                                    else -> DarkSurface2
+                                }
+                            )
+                            .border(
+                                1.dp,
+                                when {
+                                    isSelected -> EmeraldPrimary
+                                    isRH -> retireAmber.copy(alpha = 0.5f)
+                                    else -> Color.Transparent
+                                },
+                                RoundedCornerShape(8.dp)
+                            )
+                            .clickable { selectedId = player.id }
+                            .padding(horizontal = 12.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            player.name,
+                            color = if (isSelected) EmeraldPrimary else TextPrimary,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            fontSize = 14.sp
+                        )
+                        if (isRH) {
+                            Text(
+                                "↩ Retired Hurt",
+                                color = retireAmber,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+                if (players.isEmpty()) {
+                    Text("No available batsmen", color = TextSecondary, fontSize = 13.sp)
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { if (selectedId.isNotEmpty()) onSelected(selectedId) },
+                enabled = selectedId.isNotEmpty(),
+                colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimary, contentColor = Color.Black)
+            ) { Text("Confirm", fontWeight = FontWeight.Bold) }
+        },
+        dismissButton = null
     )
 }
 

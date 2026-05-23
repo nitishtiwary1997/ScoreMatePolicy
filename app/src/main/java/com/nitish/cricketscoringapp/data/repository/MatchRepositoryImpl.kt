@@ -54,11 +54,20 @@ class MatchRepositoryImpl @Inject constructor(
     override fun getMatchById(matchId: String): Flow<Match?> =
         matchDao.getMatchById(matchId).map { it?.toDomain() }
 
+    override suspend fun getMatchByIdSync(matchId: String): Match? =
+        matchDao.getMatchByIdSync(matchId)?.toDomain()
+
+    override fun getMatchesByTournament(tournamentId: String): Flow<List<Match>> =
+        matchDao.getMatchesByTournament(tournamentId).map { list -> list.map { it.toDomain() } }
+
     override fun getPlayersForMatch(matchId: String): Flow<List<Player>> =
         playerDao.getPlayersForMatch(matchId).map { list -> list.map { it.toDomain() } }
 
     override fun getBallsForInnings(matchId: String, innings: Int): Flow<List<Ball>> =
         ballDao.getBallsForInnings(matchId, innings).map { list -> list.map { it.toDomain() } }
+
+    override suspend fun getBallsForInningsSync(matchId: String, innings: Int): List<Ball> =
+        ballDao.getBallsForInningsSync(matchId, innings).map { it.toDomain() }
 
     override fun getSavedTeams(): Flow<List<SavedTeam>> =
         savedTeamDao.getAllSavedTeams().map { list -> list.map { it.toDomain() } }
@@ -120,6 +129,10 @@ class MatchRepositoryImpl @Inject constructor(
 
     override suspend fun saveTeam(team: SavedTeam) {
         savedTeamDao.upsertSavedTeam(team.toEntity())
+    }
+
+    override suspend fun setTournamentContext(matchId: String, tournamentId: String, fixtureId: String) {
+        matchDao.setTournamentContext(matchId, tournamentId, fixtureId)
     }
 
     // ── Cloud sync ────────────────────────────────────────────────────────────
@@ -225,7 +238,9 @@ class MatchRepositoryImpl @Inject constructor(
         innings1BowlerId = innings1BowlerId, innings1Completed = innings1Completed,
         innings2OnStrikeId = innings2OnStrikeId, innings2OffStrikeId = innings2OffStrikeId,
         innings2BowlerId = innings2BowlerId, innings2Completed = innings2Completed,
-        createdAt = createdAt
+        createdAt = createdAt,
+        tournamentId = tournamentId,
+        fixtureId = fixtureId
     )
 
     private fun Match.toEntity() = MatchEntity(
@@ -240,7 +255,9 @@ class MatchRepositoryImpl @Inject constructor(
         innings2OnStrikeId = innings2OnStrikeId, innings2OffStrikeId = innings2OffStrikeId,
         innings2BowlerId = innings2BowlerId, innings2Completed = innings2Completed,
         createdAt = createdAt,
-        isSynced = false   // always reset on write; Firebase sync marks it true
+        isSynced = false,
+        tournamentId = tournamentId,
+        fixtureId = fixtureId
     )
 
     private fun PlayerEntity.toDomain() = Player(id = id, name = name, matchId = matchId, team = team)

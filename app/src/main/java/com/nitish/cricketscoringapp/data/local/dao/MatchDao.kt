@@ -32,4 +32,13 @@ interface MatchDao {
 
     @Query("DELETE FROM matches WHERE id = :matchId")
     suspend fun deleteMatch(matchId: String)
+
+    @Query("SELECT * FROM matches WHERE id = :matchId LIMIT 1")
+    suspend fun getMatchByIdSync(matchId: String): MatchEntity?
+
+    @Query("SELECT * FROM matches WHERE tournamentId = :tournamentId ORDER BY createdAt DESC")
+    fun getMatchesByTournament(tournamentId: String): Flow<List<MatchEntity>>
+
+    @Query("UPDATE matches SET tournamentId = :tournamentId, fixtureId = :fixtureId WHERE id = :matchId")
+    suspend fun setTournamentContext(matchId: String, tournamentId: String, fixtureId: String)
 }
