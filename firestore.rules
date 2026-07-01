@@ -15,6 +15,24 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isMatchEditor(userId, matchId) {
+      return isSignedIn()
+        && get(/databases/$(database)/documents/users/$(userId)/matches/$(matchId)).data.currentEditorId == request.auth.uid;
+    }
+
+    function hasActivePermission(userId, matchId) {
+      return isSignedIn()
+        && request.auth.token.phone_number != null
+        && exists(/databases/$(database)/documents/users/$(userId)/matches/$(matchId)/permissions/$(request.auth.token.phone_number))
+        && get(/databases/$(database)/documents/users/$(userId)/matches/$(matchId)/permissions/$(request.auth.token.phone_number)).data.active == true;
+    }
+
+    function isTournamentCreator(tournamentId) {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/tournaments/$(tournamentId))
+        && get(/databases/$(database)/documents/tournaments/$(tournamentId)).data.createdByUserId == request.auth.uid;
+    }
+
     // Shorthand
     function incoming() { return request.resource.data; }
     function existing() { return resource.data; }
@@ -152,13 +170,13 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      // Users cannot read/write the user document itself — only subcollections
-      allow read, write: if false;
+      allow read: if isSignedIn();
+      allow write: if isOwner(userId);
 
       // ── Matches ─────────────────────────────────────────────────
       match /matches/{matchId} {
 
-        allow read: if isOwner(userId);
+        allow read: if isOwner(userId) || hasActivePermission(userId, matchId);
 
         // CREATE: full validation, document ID must match id field
         allow create: if isOwner(userId)
@@ -166,7 +184,9 @@ service cloud.firestore {
                       && isValidMatchData(incoming());
 
         // UPDATE: core fields are immutable; only status/game-state can change
-        allow update: if isOwner(userId)
+        // Owner or assigned Editor can update match. If not owner, cannot change currentEditorId
+        allow update: if (isOwner(userId) || isMatchEditor(userId, matchId))
+                      && (isOwner(userId) || incoming().currentEditorId == existing().currentEditorId)
                       && incoming().id          == existing().id
                       && incoming().createdAt   == existing().createdAt
                       && incoming().team1Name   == existing().team1Name
@@ -181,9 +201,9 @@ service cloud.firestore {
 
         // ── Players (write-once, immutable) ──────────────────────
         match /players/{playerId} {
-          allow read: if isOwner(userId);
+          allow read: if isOwner(userId) || hasActivePermission(userId, matchId);
 
-          allow create: if isOwner(userId)
+          allow create: if (isOwner(userId) || isMatchEditor(userId, matchId))
                         && incoming().id == playerId
                         && isValidPlayerData(incoming(), matchId);
 
@@ -199,32 +219,90 @@ service cloud.firestore {
 
         // ── Innings 1 Balls (insert + delete only, no updates) ───
         match /balls_innings1/{ballId} {
-          allow read: if isOwner(userId);
+          allow read: if isOwner(userId) || hasActivePermission(userId, matchId);
 
-          allow create: if isOwner(userId)
+          allow create: if (isOwner(userId) || isMatchEditor(userId, matchId))
                         && incoming().id == ballId
                         && isValidBallData(incoming(), matchId, 1);
 
           // Balls are immutable — only undo (delete) allowed
           allow update: if false;
 
-          allow delete: if isOwner(userId);
+          allow delete: if isOwner(userId) || isMatchEditor(userId, matchId);
         }
 
 
         // ── Innings 2 Balls (insert + delete only, no updates) ───
         match /balls_innings2/{ballId} {
-          allow read: if isOwner(userId);
+          allow read: if isOwner(userId) || hasActivePermission(userId, matchId);
 
-          allow create: if isOwner(userId)
+          allow create: if (isOwner(userId) || isMatchEditor(userId, matchId))
                         && incoming().id == ballId
                         && isValidBallData(incoming(), matchId, 2);
 
           allow update: if false;
 
-          allow delete: if isOwner(userId);
+          allow delete: if isOwner(userId) || isMatchEditor(userId, matchId);
+        }
+
+        // ── Permissions subcollection ────────────────────────────
+        match /permissions/{inviteeMobile} {
+          allow read: if isOwner(userId)
+                        || (isSignedIn() && request.auth.token.phone_number == inviteeMobile);
+          allow write: if isOwner(userId);
         }
       }
+    }
+
+    // ── Live Scores ──────────────────────────────────────────────
+    match /live_scores/{matchId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn();
+    }
+
+    // ── Tournaments ──────────────────────────────────────────────
+    match /tournaments/{tournamentId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && incoming().createdByUserId == request.auth.uid;
+      allow update, delete: if isSignedIn() && existing().createdByUserId == request.auth.uid;
+    }
+
+    // ── Tournament Teams ─────────────────────────────────────────
+    match /tournament_teams/{teamId} {
+      allow read: if isSignedIn();
+      allow create: if isTournamentCreator(incoming().tournamentId);
+      allow update: if isTournamentCreator(existing().tournamentId) && incoming().tournamentId == existing().tournamentId;
+      allow delete: if isTournamentCreator(existing().tournamentId);
+    }
+
+    // ── Tournament Players ───────────────────────────────────────
+    match /tournament_players/{playerId} {
+      allow read: if isSignedIn();
+      allow create: if isTournamentCreator(incoming().tournamentId);
+      allow update: if isTournamentCreator(existing().tournamentId) && incoming().tournamentId == existing().tournamentId;
+      allow delete: if isTournamentCreator(existing().tournamentId);
+    }
+
+    // ── Fixtures ─────────────────────────────────────────────────
+    match /fixtures/{fixtureId} {
+      allow read: if isSignedIn();
+      allow create: if isTournamentCreator(incoming().tournamentId);
+      allow update: if isTournamentCreator(existing().tournamentId) && incoming().tournamentId == existing().tournamentId;
+      allow delete: if isTournamentCreator(existing().tournamentId);
+    }
+
+    // ── Points Table ─────────────────────────────────────────────
+    match /points_table/{entryId} {
+      allow read: if isSignedIn();
+      allow create: if isTournamentCreator(incoming().tournamentId);
+      allow update: if isTournamentCreator(existing().tournamentId) && incoming().tournamentId == existing().tournamentId;
+      allow delete: if isTournamentCreator(existing().tournamentId);
+    }
+
+    // ── Collection Group rule for Permissions ────────────────────
+    match /{path=**}/permissions/{inviteeMobile} {
+      allow read: if isSignedIn() && (request.auth.token.phone_number == inviteeMobile || resource.data.userMobile == request.auth.token.phone_number);
     }
   }
 }

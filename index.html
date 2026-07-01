@@ -4,163 +4,1132 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ScoreMate Privacy Policy</title>
+  
+  <!-- Modern Typography (Outfit for headings, Inter for body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
 
   <style>
-    body{
-      margin:0;
-      padding:0;
-      background:#0f172a;
-      font-family:Arial, sans-serif;
-      color:#f1f5f9;
-      line-height:1.7;
+    :root {
+      --bg-dark: #090d16;
+      --bg-card: #131c31;
+      --bg-card-hover: #1b2641;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --accent-green: #10b981;
+      --accent-green-hover: #059669;
+      --accent-blue: #0ea5e9;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --shadow-lg: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      --transition-fast: 0.2s ease;
+      --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .container{
-      max-width:900px;
-      margin:40px auto;
-      padding:30px;
-      background:#1e293b;
-      border-radius:16px;
-      box-shadow:0 0 20px rgba(0,0,0,0.3);
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    h1{
-      color:#22c55e;
-      text-align:center;
-      margin-bottom:10px;
+    html {
+      scroll-behavior: smooth;
     }
 
-    h2{
-      color:#38bdf8;
-      margin-top:30px;
+    body {
+      background-color: var(--bg-dark);
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      line-height: 1.6;
+      padding-top: 80px; /* Header space */
     }
 
-    p, li{
-      color:#e2e8f0;
-      font-size:16px;
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-dark);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #273552;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3c4e75;
     }
 
-    ul{
-      padding-left:20px;
+    /* Top Sticky Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: rgba(9, 13, 22, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
     }
 
-    .footer{
-      margin-top:40px;
-      text-align:center;
-      color:#94a3b8;
-      font-size:14px;
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-main);
     }
 
-    .highlight{
-      color:#22c55e;
-      font-weight:bold;
+    .header-logo svg {
+      width: 36px;
+      height: 36px;
+      fill: var(--accent-green);
+    }
+
+    .header-logo span {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, var(--text-main) 30%, var(--accent-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* Language Switcher */
+    .lang-switcher {
+      display: flex;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 30px;
+      padding: 3px;
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .lang-btn {
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 20px;
+      transition: var(--transition-fast);
+      z-index: 2;
+      color: var(--text-muted);
+    }
+
+    .lang-btn.active {
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--accent-green), var(--accent-green-hover));
+      box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+    }
+
+    /* Utility Button */
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-fast);
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      transform: translateY(-2px);
+    }
+
+    .icon-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    /* Reading Progress Bar */
+    #progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(to right, var(--accent-green), var(--accent-blue));
+      width: 0%;
+      transition: width 0.1s ease-out;
+      z-index: 101;
+    }
+
+    /* Language Show/Hide System */
+    body.lang-en [data-lang="hi"] {
+      display: none !important;
+    }
+    body.lang-hi [data-lang="en"] {
+      display: none !important;
+    }
+
+    /* Container & Layout */
+    .main-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 40px;
+    }
+
+    /* Sidebar Quick Links */
+    aside {
+      position: sticky;
+      top: 120px;
+      height: fit-content;
+    }
+
+    .sidebar-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+
+    .toc-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-left: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .toc-item a {
+      display: block;
+      padding: 6px 16px;
+      font-size: 14px;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      margin-left: -1px;
+      transition: var(--transition-fast);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .toc-item a:hover {
+      color: var(--text-main);
+    }
+
+    .toc-item.active a {
+      color: var(--accent-green);
+      font-weight: 600;
+      border-left-color: var(--accent-green);
+      background: rgba(16, 185, 129, 0.05);
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+    }
+
+    /* Content Area */
+    .content-area {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Hero Banner Card */
+    .hero-card {
+      background: linear-gradient(135deg, rgba(19, 28, 49, 0.8), rgba(9, 13, 22, 0.9));
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero-card h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .hero-card h1 [data-lang="hi"] {
+      font-size: 32px;
+    }
+
+    .effective-date {
+      display: inline-block;
+      padding: 6px 14px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent-green);
+      margin-top: 8px;
+    }
+
+    .intro-text {
+      color: var(--text-muted);
+      font-size: 16px;
+      max-width: 700px;
+      margin: 20px auto 0 auto;
+    }
+
+    /* Search Container */
+    .search-container {
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 14px 16px 14px 46px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      color: var(--text-main);
+      font-size: 15px;
+      font-family: inherit;
+      transition: var(--transition-fast);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      fill: var(--text-dim);
+      pointer-events: none;
+      transition: var(--transition-fast);
+    }
+
+    .search-input:focus + .search-icon {
+      fill: var(--accent-blue);
+    }
+
+    /* Section Cards */
+    .policy-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.3);
+      transition: transform var(--transition-normal), border-color var(--transition-fast), box-shadow var(--transition-fast);
+      scroll-margin-top: 100px; /* Offset for sticky header */
+    }
+
+    .policy-section:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 8px 30px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 12px;
+    }
+
+    .section-icon-wrapper {
+      background: rgba(14, 165, 233, 0.15);
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-blue);
+      flex-shrink: 0;
+    }
+
+    .section-icon-wrapper svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    .policy-section h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .policy-section p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* Lists inside cards */
+    .policy-section ul {
+      list-style: none;
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .policy-section li {
+      font-size: 15px;
+      color: var(--text-muted);
+      padding-left: 28px;
+      position: relative;
+    }
+
+    /* Sporty Cricket/Checklist Custom bullets */
+    .policy-section li::before {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 5px;
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--accent-green);
+    }
+
+    .highlight-box {
+      background: rgba(255, 255, 255, 0.02);
+      border-left: 3px solid var(--accent-green);
+      padding: 16px;
+      border-radius: 0 12px 12px 0;
+      margin-top: 14px;
+    }
+
+    .highlight-box p {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .contact-email {
+      color: var(--accent-green);
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1px dashed var(--accent-green);
+      transition: var(--transition-fast);
+    }
+
+    .contact-email:hover {
+      color: var(--accent-green-hover);
+      border-bottom-style: solid;
+    }
+
+    /* Search Highlight Style */
+    mark {
+      background: rgba(14, 165, 233, 0.3);
+      color: #ffffff;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-weight: inherit;
+    }
+
+    /* Hidden element helper */
+    .hidden {
+      display: none !important;
+    }
+
+    /* Footer styles */
+    footer {
+      max-width: 1200px;
+      margin: 60px auto 40px auto;
+      padding: 24px;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 13px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* Responsiveness */
+    @media (max-width: 900px) {
+      .main-container {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      aside {
+        display: none; /* Hide TOC on smaller screens */
+      }
+
+      body {
+        padding-top: 70px;
+      }
+
+      header {
+        height: 70px;
+        padding: 0 20px;
+      }
+
+      .hero-card {
+        padding: 30px 20px;
+      }
+
+      .hero-card h1 {
+        font-size: 28px;
+      }
+    }
+
+    /* PRINT STYLES */
+    @media print {
+      body {
+        background: #ffffff;
+        color: #000000;
+        padding-top: 0;
+      }
+
+      header, aside, .search-container, .icon-btn, .lang-switcher, footer {
+        display: none !important;
+      }
+
+      .main-container {
+        grid-template-columns: 1fr;
+        margin: 0;
+        padding: 0;
+      }
+
+      .hero-card {
+        border: none;
+        background: none;
+        box-shadow: none;
+        padding: 20px 0;
+        text-align: left;
+      }
+
+      .hero-card h1 {
+        color: #000000;
+        font-size: 26px;
+      }
+
+      .effective-date {
+        background: none;
+        border: none;
+        color: #000000;
+        padding: 0;
+        font-weight: bold;
+      }
+
+      .policy-section {
+        border: none;
+        background: none;
+        box-shadow: none;
+        padding: 15px 0;
+        page-break-inside: avoid;
+      }
+
+      .section-header {
+        border-bottom: 1px solid #000000;
+      }
+
+      .section-icon-wrapper {
+        display: none !important;
+      }
+
+      .policy-section h2 {
+        color: #000000;
+      }
+
+      .policy-section p, .policy-section li {
+        color: #333333;
+      }
+
+      .policy-section li::before {
+        background-color: #000000;
+        box-shadow: none;
+      }
+
+      .highlight-box {
+        border-left: 2px solid #000000;
+        background: #f5f5f5;
+      }
+
+      .contact-email {
+        color: #000000;
+        border-bottom: none;
+      }
     }
   </style>
 </head>
 
-<body>
+<body class="lang-en">
 
-  <div class="container">
+  <!-- Floating Sticky Header -->
+  <header>
+    <a href="#" class="header-logo">
+      <!-- Custom SVG Cricket Ball Emblem -->
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+        <path d="M6 6c3 3 3 9 0 12M18 6c-3 3-3 9 0 12" stroke="currentColor" stroke-width="1.5" stroke-dasharray="1 1"/>
+        <circle cx="12" cy="12" r="2"/>
+      </svg>
+      <span>ScoreMate</span>
+    </a>
 
-    <h1>ScoreMate Privacy Policy</h1>
+    <div class="header-controls">
+      <!-- Language Switcher Toggle -->
+      <div class="lang-switcher" id="langSwitcher" onclick="toggleLanguage()">
+        <span class="lang-btn active" id="btn-en">EN</span>
+        <span class="lang-btn" id="btn-hi">हिन्दी</span>
+      </div>
 
-    <p>
-      Effective Date: <span class="highlight">May 2026</span>
-    </p>
-
-    <p>
-      ScoreMate ("we", "our", or "us") respects your privacy.
-      This Privacy Policy explains how we collect, use,
-      and protect your information when you use the ScoreMate mobile application.
-    </p>
-
-    <h2>Information We Collect</h2>
-
-    <ul>
-      <li>Google account information (if you sign in with Google)</li>
-      <li>Match scores and cricket data</li>
-      <li>Device information and analytics</li>
-      <li>Crash reports and performance diagnostics</li>
-    </ul>
-
-    <h2>How We Use Information</h2>
-
-    <ul>
-      <li>Provide live cricket scoring features</li>
-      <li>Save and sync match data</li>
-      <li>Improve app performance and user experience</li>
-      <li>Fix bugs and technical issues</li>
-      <li>Provide analytics and app functionality</li>
-    </ul>
-
-    <h2>Google Sign-In</h2>
-
-    <p>
-      If you sign in with Google, we may access:
-    </p>
-
-    <ul>
-      <li>Name</li>
-      <li>Email address</li>
-      <li>Profile photo</li>
-    </ul>
-
-    <p>
-      This information is used only for authentication and syncing your matches.
-    </p>
-
-    <h2>Advertisements</h2>
-
-    <p>
-      ScoreMate may display ads using third-party advertising services such as Google AdMob.
-      These services may collect device identifiers and usage data according to their own privacy policies.
-    </p>
-
-    <h2>Third-Party Services</h2>
-
-    <ul>
-      <li>Google AdMob</li>
-      <li>Firebase Analytics</li>
-      <li>Firebase Authentication</li>
-      <li>Google Play Services</li>
-    </ul>
-
-    <h2>Data Security</h2>
-
-    <p>
-      We take reasonable security measures to protect your information
-      and prevent unauthorized access.
-    </p>
-
-    <h2>Children’s Privacy</h2>
-
-    <p>
-      ScoreMate is not intended for children under 13 years of age.
-      We do not knowingly collect personal information from children.
-    </p>
-
-    <h2>Changes to This Privacy Policy</h2>
-
-    <p>
-      We may update this Privacy Policy from time to time.
-      Any changes will be posted on this page.
-    </p>
-
-    <h2>Contact Us</h2>
-
-    <p>
-      If you have questions about this Privacy Policy, contact us at:
-    </p>
-
-    <p class="highlight">
-      your-info.nitish1997@gmail.com
-    </p>
-
-    <div class="footer">
-      © 2026 ScoreMate. All Rights Reserved.
+      <!-- Print Button -->
+      <button class="icon-btn" onclick="window.print()" title="Print / Save PDF" aria-label="Print Document">
+        <svg viewBox="0 0 24 24">
+          <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/>
+        </svg>
+      </button>
     </div>
 
+    <!-- Reading Progress Bar -->
+    <div id="progress-bar"></div>
+  </header>
+
+  <!-- Main Grid Content -->
+  <div class="main-container">
+
+    <!-- Table of Contents Sidebar -->
+    <aside>
+      <div class="sidebar-title">
+        <span data-lang="en">Sections</span>
+        <span data-lang="hi">अनुभाग</span>
+      </div>
+      <nav>
+        <ul class="toc-list">
+          <li class="toc-item active" data-target="intro">
+            <a href="#intro">
+              <span data-lang="en">Introduction</span>
+              <span data-lang="hi">परिचय</span>
+            </a>
+          </li>
+          <li class="toc-item" data-target="collect">
+            <a href="#collect">
+              <span data-lang="en">Information We Collect</span>
+              <span data-lang="hi">जानकारी जो हम एकत्र करते हैं</span>
+            </a>
+          </li>
+          <li class="toc-item" data-target="use">
+            <a href="#use">
+              <span data-lang="en">How We Use Information</span>
+              <span data-lang="hi">हम जानकारी का उपयोग कैसे करते हैं</span>
+            </a>
+          </li>
+          <li class="toc-item" data-target="google">
+            <a href="#google">
+              <span data-lang="en">Google Sign-In</span>
+              <span data-lang="hi">गूगल साइन-इन</span>
+            </a>
+          </li>
+          <li class="toc-item" data-target="ads">
+            <a href="#ads">
+              <span data-lang="en">Advertisements</span>
+              <span data-lang="hi">विज्ञापन</span>
+            </a>
+          </li>
+          <li class="toc-item" data-target="third-party">
+            <a href="#third-party">
+              <span data-lang="en">Third-Party Services</span>
+              <span data-lang="hi">तृतीय-पक्ष सेवाएँ</span>
+            </a>
+          </li>
+          <li class="toc-item" data-target="security">
+            <a href="#security">
+              <span data-lang="en">Data Security</span>
+              <span data-lang="hi">डेटा सुरक्षा</span>
+            </a>
+          </li>
+          <li class="toc-item" data-target="children">
+            <a href="#children">
+              <span data-lang="en">Children’s Privacy</span>
+              <span data-lang="hi">बच्चों की गोपनीयता</span>
+            </a>
+          </li>
+          <li class="toc-item" data-target="changes">
+            <a href="#changes">
+              <span data-lang="en">Changes to Policy</span>
+              <span data-lang="hi">नीति में परिवर्तन</span>
+            </a>
+          </li>
+          <li class="toc-item" data-target="contact">
+            <a href="#contact">
+              <span data-lang="en">Contact Us</span>
+              <span data-lang="hi">संपर्क करें</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+
+      <!-- Hero Card Banner -->
+      <section class="hero-card" id="intro-hero">
+        <h1 data-lang="en">ScoreMate Privacy Policy</h1>
+        <h1 data-lang="hi">स्कोरमेट गोपनीयता नीति</h1>
+
+        <div>
+          <span class="effective-date">
+            <span data-lang="en">Effective Date: May 2026</span>
+            <span data-lang="hi">प्रभावी तिथि: मई 2026</span>
+          </span>
+        </div>
+
+        <p class="intro-text">
+          <span data-lang="en">
+            ScoreMate ("we", "our", or "us") respects your privacy. This Privacy Policy explains how we collect, use, and protect your information when you use the ScoreMate mobile application.
+          </span>
+          <span data-lang="hi">
+            ScoreMate ("हम", "हमारा", या "हमें") आपकी गोपनीयता का सम्मान करता है। यह गोपनीयता नीति बताती है कि जब आप ScoreMate मोबाइल एप्लिकेशन का उपयोग करते हैं तो हम आपकी जानकारी को कैसे एकत्र, उपयोग और सुरक्षित करते हैं।
+          </span>
+        </p>
+      </section>
+
+      <!-- Search Input -->
+      <div class="search-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search privacy terms..." oninput="handleSearch()">
+        <svg class="search-icon" viewBox="0 0 24 24">
+          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+      </div>
+
+      <!-- Sections -->
+
+      <!-- Section 1: Introduction -->
+      <section class="policy-section" id="intro">
+        <div class="section-header">
+          <div class="section-icon-wrapper">
+            <!-- Info Icon -->
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          </div>
+          <h2>
+            <span data-lang="en">Introduction</span>
+            <span data-lang="hi">परिचय</span>
+          </h2>
+        </div>
+        <p>
+          <span data-lang="en">Welcome to ScoreMate. We are committed to protecting your personal data and your privacy. This document outlines the details of our policy regarding the data collected during your matches and app usage.</span>
+          <span data-lang="hi">स्कोरमेट में आपका स्वागत है। हम आपके व्यक्तिगत डेटा और आपकी गोपनीयता की रक्षा करने के लिए प्रतिबद्ध हैं। यह दस्तावेज़ आपके मैचों और ऐप के उपयोग के दौरान एकत्र किए गए डेटा के संबंध में हमारी नीति के विवरण को रेखांकित करता है।</span>
+        </p>
+      </section>
+
+      <!-- Section 2: Information We Collect -->
+      <section class="policy-section" id="collect">
+        <div class="section-header">
+          <div class="section-icon-wrapper">
+            <!-- Database Icon -->
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm8.59-4.83c-.34-.78-1.07-1.1-1.59-1.1h-4v-3h2c.55 0 1-.45 1-1V7h-4V5H9v4.5C9 10.33 8.33 11 7.5 11H6v2H5v3h3.5v-1.5c0-.83.67-1.5 1.5-1.5h1.5v3H9v2.85c-1.3-.4-2.39-1.3-2.85-2.85h3.35v-1H5.43c.27-.61.64-1.17 1.1-1.65L10 12.5V11H7.5c-.28 0-.5-.22-.5-.5s.22-.5.5-.5H11v-3h2.5c.28 0 .5.22.5.5s-.22.5-.5.5H12v2h2v1.5c0 .83.67 1.5 1.5 1.5H17v1.5c0 .83.67 1.5 1.5 1.5h.7c-.24.62-.57 1.2-.97 1.72l-.64-.64z"/></svg>
+          </div>
+          <h2>
+            <span data-lang="en">Information We Collect</span>
+            <span data-lang="hi">जानकारी जो हम एकत्र करते हैं</span>
+          </h2>
+        </div>
+        <p>
+          <span data-lang="en">To deliver a premium scoring experience, we may collect the following information:</span>
+          <span data-lang="hi">एक प्रीमियम स्कोरिंग अनुभव प्रदान करने के लिए, हम निम्नलिखित जानकारी एकत्र कर सकते हैं:</span>
+        </p>
+        <ul>
+          <li>
+            <span data-lang="en">Google account information (if you sign in with Google)</span>
+            <span data-lang="hi">गूगल खाता जानकारी (यदि आप गूगल के साथ साइन इन करते हैं)</span>
+          </li>
+          <li>
+            <span data-lang="en">Match scores, stats, and cricket database entries</span>
+            <span data-lang="hi">मैच स्कोर, आंकड़े, और क्रिकेट डेटाबेस प्रविष्टियां</span>
+          </li>
+          <li>
+            <span data-lang="en">Device specifications, OS version, and network carrier</span>
+            <span data-lang="hi">डिवाइस विनिर्देश, ओएस संस्करण, और नेटवर्क कैरियर</span>
+          </li>
+          <li>
+            <span data-lang="en">Crash logs and performance analytics data</span>
+            <span data-lang="hi">क्रैश लॉग और प्रदर्शन विश्लेषण डेटा</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Section 3: How We Use Information -->
+      <section class="policy-section" id="use">
+        <div class="section-header">
+          <div class="section-icon-wrapper">
+            <!-- Settings/Cog Icon -->
+            <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+          </div>
+          <h2>
+            <span data-lang="en">How We Use Information</span>
+            <span data-lang="hi">हम जानकारी का उपयोग कैसे करते हैं</span>
+          </h2>
+        </div>
+        <p>
+          <span data-lang="en">We utilize the collected details for the following purposes:</span>
+          <span data-lang="hi">हम निम्नलिखित उद्देश्यों के लिए एकत्र किए गए विवरणों का उपयोग करते हैं:</span>
+        </p>
+        <ul>
+          <li>
+            <span data-lang="en">Provide live cricket scoring and record-keeping features</span>
+            <span data-lang="hi">लाइव क्रिकेट स्कोरिंग और रिकॉर्ड-कीपिंग सुविधाएँ प्रदान करना</span>
+          </li>
+          <li>
+            <span data-lang="en">Safely store and synchronize matches across your devices</span>
+            <span data-lang="hi">आपके सभी डिवाइस पर मैचों को सुरक्षित रूप से सहेजना और सिंक करना</span>
+          </li>
+          <li>
+            <span data-lang="en">Optimize app performance, UI design, and features</span>
+            <span data-lang="hi">ऐप प्रदर्शन, यूआई डिज़ाइन और सुविधाओं को अनुकूलित करना</span>
+          </li>
+          <li>
+            <span data-lang="en">Resolve crashes, bugs, and other technical limitations</span>
+            <span data-lang="hi">क्रैश, बग और अन्य तकनीकी सीमाओं को ठीक करना</span>
+          </li>
+          <li>
+            <span data-lang="en">Analyze global trends to plan future feature implementations</span>
+            <span data-lang="hi">भविष्य के फीचर कार्यान्वयन की योजना बनाने के लिए वैश्विक रुझानों का विश्लेषण करना</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Section 4: Google Sign-In -->
+      <section class="policy-section" id="google">
+        <div class="section-header">
+          <div class="section-icon-wrapper">
+            <!-- Account Icon -->
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+          </div>
+          <h2>
+            <span data-lang="en">Google Sign-In</span>
+            <span data-lang="hi">गूगल साइन-इन</span>
+          </h2>
+        </div>
+        <p>
+          <span data-lang="en">If you select to authenticate using Google Sign-In, we will request access to basic profile fields:</span>
+          <span data-lang="hi">यदि आप गूगल साइन-इन का उपयोग करके प्रमाणित करना चुनते हैं, तो हम बुनियादी प्रोफ़ाइल फ़ील्ड तक पहुँच का अनुरोध करेंगे:</span>
+        </p>
+        <ul>
+          <li>
+            <span data-lang="en">Your display name</span>
+            <span data-lang="hi">आपका प्रदर्शन नाम (Name)</span>
+          </li>
+          <li>
+            <span data-lang="en">Your email address</span>
+            <span data-lang="hi">आपका ईमेल पता (Email)</span>
+          </li>
+          <li>
+            <span data-lang="en">Your Google profile photo URL</span>
+            <span data-lang="hi">आपका गूगल प्रोफ़ाइल फ़ोटो URL</span>
+          </li>
+        </ul>
+        <div class="highlight-box">
+          <p>
+            <span data-lang="en">Note: This information is strictly used to authenticate your login sessions and ensure your saved matches are backed up securely.</span>
+            <span data-lang="hi">नोट: इस जानकारी का उपयोग कड़ाई से आपके लॉगिन सत्रों को प्रमाणित करने और यह सुनिश्चित करने के लिए किया जाता है कि आपके सहेजे गए मैच सुरक्षित रूप से बैकअप किए गए हैं।</span>
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 5: Advertisements -->
+      <section class="policy-section" id="ads">
+        <div class="section-header">
+          <div class="section-icon-wrapper">
+            <!-- Ad Icon -->
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/></svg>
+          </div>
+          <h2>
+            <span data-lang="en">Advertisements</span>
+            <span data-lang="hi">विज्ञापन</span>
+          </h2>
+        </div>
+        <p>
+          <span data-lang="en">ScoreMate may show ads provided by Google AdMob. These mobile ad providers may collect device advertising IDs (like Google AAID) and basic system diagnostics to present personalized or non-personalized advertisements according to their own developer agreements and policies.</span>
+          <span data-lang="hi">ScoreMate गूगल एडमॉब द्वारा प्रदान किए गए विज्ञापन दिखा सकता है। ये मोबाइल विज्ञापन प्रदाता अपने स्वयं के डेवलपर समझौतों और नीतियों के अनुसार व्यक्तिगत या गैर-व्यक्तिगत विज्ञापन प्रस्तुत करने के लिए डिवाइस विज्ञापन आईडी (जैसे Google AAID) और बुनियादी सिस्टम डायग्नोस्टिक्स एकत्र कर सकते हैं।</span>
+        </p>
+      </section>
+
+      <!-- Section 6: Third-Party Services -->
+      <section class="policy-section" id="third-party">
+        <div class="section-header">
+          <div class="section-icon-wrapper">
+            <!-- Shared Link Icon -->
+            <svg viewBox="0 0 24 24"><path d="M20 18c-.53 0-1.01.21-1.37.55L9.51 13.9c.04-.3.06-.61.06-.9s-.02-.6-.06-.9l9.04-5.11c.37.35.86.56 1.45.56 1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2c0 .29.02.6.06.9L9.51 11.1c-.37-.35-.86-.55-1.45-.55-1.1 0-2 .9-2 2s.9 2 2 2c.59 0 1.08-.2 1.45-.55l9.08 5.14c-.04.28-.08.58-.08.86 0 1.1.9 2 2 2s2-.9 2-2-.9-2-2-2z"/></svg>
+          </div>
+          <h2>
+            <span data-lang="en">Third-Party Services</span>
+            <span data-lang="hi">तृतीय-पक्ष सेवाएँ</span>
+          </h2>
+        </div>
+        <p>
+          <span data-lang="en">We leverage various trusted third-party SDKs and systems within our mobile app:</span>
+          <span data-lang="hi">हम अपने मोबाइल ऐप के भीतर विभिन्न विश्वसनीय तृतीय-पक्ष SDK और प्रणालियों का लाभ उठाते हैं:</span>
+        </p>
+        <ul>
+          <li><strong>Google AdMob</strong> <span data-lang="en">(Advertisement display)</span><span data-lang="hi">(विज्ञापन प्रदर्शन)</span></li>
+          <li><strong>Firebase Analytics</strong> <span data-lang="en">(App metrics and crash insights)</span><span data-lang="hi">(ऐप मेट्रिक्स और क्रैश अंतर्दृष्टि)</span></li>
+          <li><strong>Firebase Authentication</strong> <span data-lang="en">(Secure user login session management)</span><span data-lang="hi">(सुरक्षित उपयोगकर्ता लॉगिन सत्र प्रबंधन)</span></li>
+          <li><strong>Google Play Services</strong> <span data-lang="en">(Essential platform functionalities)</span><span data-lang="hi">(आवश्यक प्लेटफ़ॉर्म कार्यक्षमताएँ)</span></li>
+        </ul>
+      </section>
+
+      <!-- Section 7: Data Security -->
+      <section class="policy-section" id="security">
+        <div class="section-header">
+          <div class="section-icon-wrapper">
+            <!-- Shield/Lock Icon -->
+            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+          </div>
+          <h2>
+            <span data-lang="en">Data Security</span>
+            <span data-lang="hi">डेटा सुरक्षा</span>
+          </h2>
+        </div>
+        <p>
+          <span data-lang="en">We implement strong industry-standard administrative, physical, and technical safeguards (like SSL encryption and secure Firestore Rules) to prevent loss, misuse, modification, or unauthorized exposure of your match data.</span>
+          <span data-lang="hi">हम आपके मैच डेटा के नुकसान, दुरुपयोग, संशोधन या अनधिकृत जोखिम को रोकने के लिए मजबूत उद्योग-मानक प्रशासनिक, भौतिक और तकनीकी सुरक्षा उपाय (जैसे SSL एन्क्रिप्शन और सुरक्षित फ़ायरबेस रूल्स) लागू करते हैं।</span>
+        </p>
+      </section>
+
+      <!-- Section 8: Children’s Privacy -->
+      <section class="policy-section" id="children">
+        <div class="section-header">
+          <div class="section-icon-wrapper">
+            <!-- Child/Face Icon -->
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+          </div>
+          <h2>
+            <span data-lang="en">Children’s Privacy</span>
+            <span data-lang="hi">बच्चों की गोपनीयता</span>
+          </h2>
+        </div>
+        <p>
+          <span data-lang="en">ScoreMate does not intentionally solicit or collect personally identifiable information from children under 13 years of age. If we learn that a user under 13 has shared profile details without parental approval, we take steps to wipe that information immediately from our database logs.</span>
+          <span data-lang="hi">ScoreMate जानबूझकर 13 वर्ष से कम उम्र के बच्चों से व्यक्तिगत रूप से पहचान योग्य जानकारी एकत्र नहीं करता है। यदि हमें पता चलता है कि 13 वर्ष से कम उम्र के उपयोगकर्ता ने माता-पिता की स्वीकृति के बिना प्रोफ़ाइल विवरण साझा किया है, तो हम अपने डेटाबेस से उस जानकारी को तुरंत हटाने के कदम उठाते हैं।</span>
+        </p>
+      </section>
+
+      <!-- Section 9: Changes to This Privacy Policy -->
+      <section class="policy-section" id="changes">
+        <div class="section-header">
+          <div class="section-icon-wrapper">
+            <!-- Update/Rotate Icon -->
+            <svg viewBox="0 0 24 24"><path d="M21 10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.66-9.83.1-2.68 2.76-2.68 7.21 0 9.96 2.68 2.75 7.1 2.75 9.83 0 1.35-1.38 2.01-3.03 2.01-5.11h2c0 2.62-1.16 4.93-2.97 6.77-3.52 3.61-9.23 3.61-12.75 0-3.53-3.6-3.53-9.46 0-13.06 3.52-3.61 9.23-3.61 12.75 0l2.74-2.82V10.12z"/></svg>
+          </div>
+          <h2>
+            <span data-lang="en">Changes to This Privacy Policy</span>
+            <span data-lang="hi">इस गोपनीयता नीति में परिवर्तन</span>
+          </h2>
+        </div>
+        <p>
+          <span data-lang="en">We reserve the right to modify or change this policy description at any time. When updates occur, they will be instantly published onto this index page. We recommend reviewing this document periodically to keep updated on our security measures.</span>
+          <span data-lang="hi">हम किसी भी समय इस नीति विवरण को संशोधित या बदलने का अधिकार सुरक्षित रखते हैं। जब अपडेट होते हैं, तो उन्हें तुरंत इस इंडेक्स पेज पर प्रकाशित किया जाएगा। हमारी सुरक्षा उपायों पर अपडेट रहने के लिए हम समय-समय पर इस दस्तावेज़ की समीक्षा करने की सलाह देते हैं।</span>
+        </p>
+      </section>
+
+      <!-- Section 10: Contact Us -->
+      <section class="policy-section" id="contact">
+        <div class="section-header">
+          <div class="section-icon-wrapper">
+            <!-- Mail/Envelope Icon -->
+            <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          </div>
+          <h2>
+            <span data-lang="en">Contact Us</span>
+            <span data-lang="hi">हमसे संपर्क करें</span>
+          </h2>
+        </div>
+        <p>
+          <span data-lang="en">If you have any queries or concerns regarding this policy, please feel free to drop an email to:</span>
+          <span data-lang="hi">यदि इस नीति के संबंध में आपके कोई प्रश्न या चिंताएं हैं, तो कृपया बेझिझक हमें इस पते पर ईमेल भेजें:</span>
+        </p>
+        <div class="highlight-box">
+          <p>
+            <a href="mailto:your-info.nitish1997@gmail.com" class="contact-email">your-info.nitish1997@gmail.com</a>
+          </p>
+        </div>
+      </section>
+
+    </main>
   </div>
 
+  <!-- Footer -->
+  <footer>
+    <span data-lang="en">© 2026 ScoreMate. All Rights Reserved.</span>
+    <span data-lang="hi">© 2026 स्कोरमेट। सर्वाधिकार सुरक्षित।</span>
+  </footer>
+
+  <!-- Interactivity Script -->
+  <script>
+    // Language Toggle
+    function toggleLanguage() {
+      const body = document.body;
+      const isEnglish = body.classList.contains('lang-en');
+      
+      const btnEn = document.getElementById('btn-en');
+      const btnHi = document.getElementById('btn-hi');
+
+      if (isEnglish) {
+        body.classList.remove('lang-en');
+        body.classList.add('lang-hi');
+        btnEn.classList.remove('active');
+        btnHi.classList.add('active');
+      } else {
+        body.classList.remove('lang-hi');
+        body.classList.add('lang-en');
+        btnHi.classList.remove('active');
+        btnEn.classList.add('active');
+      }
+
+      // Re-run search matching to ensure correct text elements remain highlighted
+      handleSearch();
+    }
+
+    // Scroll Progress Bar
+    window.addEventListener('scroll', () => {
+      const progressBar = document.getElementById('progress-bar');
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        const scrolledPercentage = (window.scrollY / totalHeight) * 100;
+        progressBar.style.width = scrolledPercentage + '%';
+      }
+    });
+
+    // Active Sidebar TOC Tracker using IntersectionObserver
+    const sections = document.querySelectorAll('.policy-section');
+    const tocItems = document.querySelectorAll('.toc-item');
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '-20% 0px -60% 0px', // Trigger when section occupies core viewport
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          
+          tocItems.forEach(item => {
+            if (item.getAttribute('data-target') === id) {
+              item.classList.add('active');
+            } else {
+              item.classList.remove('active');
+            }
+          });
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(section => observer.observe(section));
+
+    // Dynamic Search Filter & Text Highlighting
+    function handleSearch() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      const currentLang = document.body.classList.contains('lang-en') ? 'en' : 'hi';
+      const sections = document.querySelectorAll('.policy-section');
+
+      sections.forEach(section => {
+        // Get the active text nodes for the currently visible language
+        const textElements = section.querySelectorAll(`[data-lang="${currentLang}"]`);
+        let combinedText = '';
+        textElements.forEach(el => {
+          combinedText += el.textContent + ' ';
+        });
+
+        // Hide/Show section depending on match
+        if (query === '' || combinedText.toLowerCase().includes(query)) {
+          section.classList.remove('hidden');
+          
+          // Apply matching highlighting
+          textElements.forEach(el => {
+            removeHighlights(el);
+            if (query !== '') {
+              highlightText(el, query);
+            }
+          });
+        } else {
+          section.classList.add('hidden');
+        }
+      });
+    }
+
+    // Helper functions for highlighting text dynamically
+    function removeHighlights(element) {
+      if (element.querySelector('mark')) {
+        element.innerHTML = element.innerHTML.replace(/<mark>|<\/mark>/g, '');
+      }
+    }
+
+    // A safer text highlighting that handles multiple text fragments
+    function highlightText(element, query) {
+      const innerHTML = element.innerHTML;
+      
+      const walk = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, null, false);
+      let textNode;
+      const nodesToReplace = [];
+      
+      while (textNode = walk.nextNode()) {
+        if (textNode.nodeValue.toLowerCase().includes(query)) {
+          nodesToReplace.push(textNode);
+        }
+      }
+
+      nodesToReplace.forEach(node => {
+        const parent = node.parentNode;
+        const textVal = node.nodeValue;
+        const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
+        
+        const tempSpan = document.createElement('span');
+        tempSpan.innerHTML = textVal.replace(regex, '<mark>$1</mark>');
+        
+        while (tempSpan.firstChild) {
+          parent.insertBefore(tempSpan.firstChild, node);
+        }
+        parent.removeChild(node);
+      });
+    }
+
+    // Escape regex characters
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+  </script>
 </body>
 </html>

@@ -7,15 +7,15 @@ plugins {
 }
 
 android {
-    namespace = "com.nitish.cricketscoringapp"
+    namespace = "com.cric.cricketscoring"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.nitish.cricketscoringapp"
+        applicationId = "com.cric.cricketscoring"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "1.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

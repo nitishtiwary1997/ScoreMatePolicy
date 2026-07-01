@@ -1,33 +1,41 @@
 {
   "project_info": {
-    "project_number": "716481170804",
-    "project_id": "cricketscoringapp-a9112",
-    "storage_bucket": "cricketscoringapp-a9112.firebasestorage.app"
+    "project_number": "938327408107",
+    "project_id": "cricket-scorer-5bce2",
+    "storage_bucket": "cricket-scorer-5bce2.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:716481170804:android:a942fa5a6474884df47021",
+        "mobilesdk_app_id": "1:938327408107:android:a13409f235f3d4f65f6dae",
         "android_client_info": {
-          "package_name": "com.nitish.cricketscoringapp"
+          "package_name": "com.cric.cricketscoring"
         }
       },
       "oauth_client": [
         {
-          "client_id": "716481170804-btsi7pusvjdakm4ovsffs2k5s20oqdi2.apps.googleusercontent.com",
+          "client_id": "938327408107-8pdmp93ulalaenn7ll1ilpm9pm27v6uv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cric.cricketscoring",
+            "certificate_hash": "3aaf0f23b3831e35ea4348f24e2190fb5e5477c7"
+          }
+        },
+        {
+          "client_id": "938327408107-jvr71prbaqr21cql81q84s5rgdia5ta7.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCX3bjQyA3G-XarROsjaaozgTqQ4AJKGnU"
+          "current_key": "AIzaSyAuP1t35u_J1kr6pxXeIM_8gNzwCcXh5B8"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "716481170804-btsi7pusvjdakm4ovsffs2k5s20oqdi2.apps.googleusercontent.com",
+              "client_id": "938327408107-jvr71prbaqr21cql81q84s5rgdia5ta7.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
