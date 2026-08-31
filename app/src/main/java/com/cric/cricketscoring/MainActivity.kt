@@ -67,7 +67,7 @@ class MainActivity : ComponentActivity() {
                 Box(modifier = Modifier.fillMaxSize()) {
                     AppNavGraph(
                         navController = navController,
-                        startOnLogin  = !userSession.isSignedIn
+                        startOnLogin  = !userSession.isSignedIn && !userSession.isGuestMode
                     )
 
                     AnimatedVisibility(
@@ -75,8 +75,11 @@ class MainActivity : ComponentActivity() {
                         enter   = fadeIn(),
                         exit    = fadeOut(),
                         modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(end = 16.dp, bottom = 80.dp)
+                            // Bottom-start: screen-specific primary FABs (New Match, New
+                            // Tournament, etc.) conventionally sit bottom-end, so this avoids
+                            // stacking on top of them and stealing their taps.
+                            .align(Alignment.BottomStart)
+                            .padding(start = 16.dp, bottom = 80.dp)
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             // Theme toggle FAB

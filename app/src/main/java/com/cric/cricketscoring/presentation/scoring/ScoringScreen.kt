@@ -192,6 +192,10 @@ fun ScoringScreen(
                 onSelected = viewModel::onSelectBowler,
                 onDismiss = {}
             )
+            is ScoringDialog.ConfirmLastManStanding -> LastManStandingDialog(
+                survivorName = state.players.firstOrNull { it.id == dialog.survivorId }?.name ?: "Batsman",
+                onDecision = viewModel::onLastManDecision
+            )
             is ScoringDialog.InningsComplete -> StartInnings2Dialog(
                 match = match,
                 players = state.players,
@@ -1253,6 +1257,49 @@ private fun AddPlayerDialog(
 }
 
 // ── End Match Early Confirm Dialog ────────────────────────────────────────────
+
+@Composable
+private fun LastManStandingDialog(
+    survivorName: String,
+    onDecision: (continuePlaying: Boolean) -> Unit
+) {
+    val c = LocalAppColors.current
+    AlertDialog(
+        onDismissRequest = {},
+        containerColor = c.surface,
+        titleContentColor = c.textPrimary,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("🏏", fontSize = 20.sp)
+                Text("Last Wicket!", fontWeight = FontWeight.Bold)
+            }
+        },
+        text = {
+            Text(
+                "No batsmen left in the pavilion. Should $survivorName continue batting alone (no partner at the other end)?",
+                style = MaterialTheme.typography.bodyMedium,
+                color = c.textSecondary
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = { onDecision(true) },
+                colors = ButtonDefaults.buttonColors(containerColor = EmeraldPrimary, contentColor = Color.Black)
+            ) {
+                Text("single batsman continue", fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            OutlinedButton(
+                onClick = { onDecision(false) },
+                border = androidx.compose.foundation.BorderStroke(1.dp, c.outline),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = c.textSecondary)
+            ) {
+                Text("No")
+            }
+        }
+    )
+}
 
 @Composable
 private fun EndMatchEarlyConfirmDialog(

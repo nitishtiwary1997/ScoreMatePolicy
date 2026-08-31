@@ -28,6 +28,17 @@ sealed class ScoringDialog {
         val retiredHurtIds: Set<String> = emptySet()
     ) : ScoringDialog()
     data class SelectBowler(val available: List<Player>) : ScoringDialog()
+    /** No replacement batsman is left — ask whether the not-out batsman continues solo. */
+    data class ConfirmLastManStanding(
+        val survivorId: String,
+        val overCompleteAfter: Boolean,
+        val bowlerId: String,
+        val innings: Int,
+        val wicketsAfter: Int,
+        val innings2Runs: Int,
+        val innings1Total: Int,
+        val battingTeamSize: Int
+    ) : ScoringDialog()
     object InningsComplete : ScoringDialog()
     data class MatchComplete(val result: String) : ScoringDialog()
     object AddPlayer : ScoringDialog()
@@ -81,11 +92,14 @@ class ScoringViewModel @Inject constructor(
                 }
 
                 val currentUserId = userSession.userId
-                val isEditor = match.currentEditorId.isEmpty()
+                val isEditor = !userSession.isSignedIn
+                        || match.currentEditorId.isEmpty()
                         || match.currentEditorId == currentUserId
                         || match.ownerId.isEmpty()
 
-                if (!isEditor && match.ownerId.isNotEmpty()) {
+                // Live sync from another owner's Firestore doc requires a signed-in user
+                // (Firestore rules reject anonymous/guest reads) — guests always edit locally.
+                if (!isEditor && match.ownerId.isNotEmpty() && userSession.isSignedIn) {
                     startLiveSyncFromFirestore(match.ownerId, match.id)
                 }
 
@@ -212,21 +226,29 @@ class ScoringViewModel @Inject constructor(
             val innings2CurrentRuns = (state.innings2Score?.totalRuns ?: 0) + ball.totalRuns
             val targetReached = innings == 2 && innings2CurrentRuns > innings1Total
 
-            val inningsComplete = allOut || oversComplete || targetReached
+            // "Last man standing": once only 1 batsman is left (no partner), ask before
+            // ending the innings instead of ending it immediately. `wasSolo` (no partner
+            // even before this ball) means the lone batsman was already batting alone —
+            // if they get out too, there's truly nobody left and the innings must end.
+            val wasSolo = offStrikeId.isEmpty()
+            val outOfPartners = allOut && isWicket && !wasSolo
+            val soloBatsmanDismissed = allOut && isWicket && wasSolo
+
+            val inningsComplete = oversComplete || targetReached || soloBatsmanDismissed
 
             if (inningsComplete) {
                 handleInningsComplete(match, innings, allOut, targetReached, state, wicketsAfter, innings2CurrentRuns, innings1Total, battingTeamSize)
                 return@launch
             }
 
-            // Strike rotation
+            // Strike rotation — skipped while batting alone (no partner to rotate with)
             var newOnStrikeId = onStrikeId
             var newOffStrikeId = offStrikeId
 
             val totalBallRuns = batsmanRuns + extras
             val shouldRotate = extraType != ExtraType.WIDE && totalBallRuns % 2 == 1
 
-            if (shouldRotate && !isWicket) {
+            if (shouldRotate && !isWicket && !wasSolo) {
                 newOnStrikeId = offStrikeId
                 newOffStrikeId = onStrikeId
             }
@@ -240,7 +262,7 @@ class ScoringViewModel @Inject constructor(
                 }
             }
 
-            if (overComplete) {
+            if (overComplete && !wasSolo) {
                 // End of over: non-striker becomes striker
                 val tmp = newOnStrikeId
                 newOnStrikeId = newOffStrikeId
@@ -249,26 +271,50 @@ class ScoringViewModel @Inject constructor(
 
             var dialog: ScoringDialog = ScoringDialog.None
             if (isWicket) {
-                val available = availableBatsmen(state, innings, dismissedId ?: onStrikeId, newOnStrikeId, newOffStrikeId)
-                val rhIds = retiredHurtIds(state, innings, dismissedId ?: onStrikeId)
-
-                if (available.size == 1 && rhIds.isEmpty()) {
-                    // Auto-swap batsman when exactly 1 option is available to bat (and no retired hurt players)
-                    val nextPlayerId = available[0].id
-                    if (newOnStrikeId.isEmpty()) {
-                        newOnStrikeId = nextPlayerId
+                if (outOfPartners && innings == 1) {
+                    // No replacement batsman left — ask (1st innings only) whether the
+                    // survivor continues solo. In the 2nd innings we auto-continue below
+                    // instead of asking, so a chase never gets interrupted by a prompt.
+                    val survivorId = if (newOnStrikeId.isNotEmpty()) newOnStrikeId else newOffStrikeId
+                    dialog = ScoringDialog.ConfirmLastManStanding(
+                        survivorId = survivorId,
+                        overCompleteAfter = overComplete,
+                        bowlerId = bowlerId,
+                        innings = innings,
+                        wicketsAfter = wicketsAfter,
+                        innings2Runs = innings2CurrentRuns,
+                        innings1Total = innings1Total,
+                        battingTeamSize = battingTeamSize
+                    )
+                } else if (outOfPartners) {
+                    // 2nd innings: last man keeps batting automatically, no prompt.
+                    dialog = if (overComplete) {
+                        ScoringDialog.SelectBowler(availableBowlers(state, innings, bowlerId))
                     } else {
-                        newOffStrikeId = nextPlayerId
-                    }
-
-                    if (overComplete) {
-                        val nextBowlers = availableBowlers(state, innings, bowlerId)
-                        dialog = ScoringDialog.SelectBowler(nextBowlers)
-                    } else {
-                        dialog = ScoringDialog.None
+                        ScoringDialog.None
                     }
                 } else {
-                    dialog = ScoringDialog.SelectBatsman(available, overCompleteAfter = overComplete, dismissedIsStriker = dismissedIsStriker, retiredHurtIds = rhIds)
+                    val available = availableBatsmen(state, innings, dismissedId ?: onStrikeId, newOnStrikeId, newOffStrikeId)
+                    val rhIds = retiredHurtIds(state, innings, dismissedId ?: onStrikeId)
+
+                    if (available.size == 1 && rhIds.isEmpty()) {
+                        // Auto-swap batsman when exactly 1 option is available to bat (and no retired hurt players)
+                        val nextPlayerId = available[0].id
+                        if (newOnStrikeId.isEmpty()) {
+                            newOnStrikeId = nextPlayerId
+                        } else {
+                            newOffStrikeId = nextPlayerId
+                        }
+
+                        if (overComplete) {
+                            val nextBowlers = availableBowlers(state, innings, bowlerId)
+                            dialog = ScoringDialog.SelectBowler(nextBowlers)
+                        } else {
+                            dialog = ScoringDialog.None
+                        }
+                    } else {
+                        dialog = ScoringDialog.SelectBatsman(available, overCompleteAfter = overComplete, dismissedIsStriker = dismissedIsStriker, retiredHurtIds = rhIds)
+                    }
                 }
             } else if (overComplete) {
                 val availableBowlers = availableBowlers(state, innings, bowlerId)
@@ -374,6 +420,43 @@ class ScoringViewModel @Inject constructor(
         }
     }
 
+    /** Answers the "no partner left — play on solo?" prompt raised from [recordBall]. */
+    fun onLastManDecision(continuePlaying: Boolean) {
+        viewModelScope.launch {
+            val state = _uiState.value
+            val dialog = state.dialog as? ScoringDialog.ConfirmLastManStanding ?: return@launch
+            val match = state.match ?: return@launch
+
+            if (continuePlaying) {
+                val updatedMatch = updateBatsBowl(
+                    match, dialog.innings,
+                    newOnStrikeId = dialog.survivorId,
+                    newOffStrikeId = "",
+                    newBowlerId = dialog.bowlerId
+                )
+                repository.updateMatch(updatedMatch)
+                val nextDialog = if (dialog.overCompleteAfter) {
+                    ScoringDialog.SelectBowler(availableBowlers(state, dialog.innings, dialog.bowlerId))
+                } else {
+                    ScoringDialog.None
+                }
+                _uiState.update { it.copy(dialog = nextDialog) }
+            } else {
+                handleInningsComplete(
+                    match = match,
+                    innings = dialog.innings,
+                    allOut = true,
+                    targetReached = false,
+                    state = state,
+                    wicketsAfter = dialog.wicketsAfter,
+                    innings2Runs = dialog.innings2Runs,
+                    innings1Total = dialog.innings1Total,
+                    battingTeamSize = dialog.battingTeamSize
+                )
+            }
+        }
+    }
+
     fun onSelectBowler(playerId: String) {
         viewModelScope.launch {
             val state = _uiState.value
@@ -469,8 +552,9 @@ class ScoringViewModel @Inject constructor(
                 val isLegal = lastBall.extraType != ExtraType.WIDE && lastBall.extraType != ExtraType.NO_BALL
                 val wasOverComplete = isLegal && (currentBalls.count { it.isLegalDelivery } % 6 == 0)
                 val wasStrikeRotated = lastBall.extraType != ExtraType.WIDE && totalBallRuns % 2 == 1
+                val isSolo = currentOff.isEmpty() // batting alone — strike never rotates
 
-                if (wasStrikeRotated != wasOverComplete) {
+                if (!isSolo && wasStrikeRotated != wasOverComplete) {
                     prevOn = currentOff
                     prevOff = currentOn
                 } else {
@@ -640,28 +724,36 @@ class ScoringViewModel @Inject constructor(
         if (syncJob != null) return
         syncJob = viewModelScope.launch(Dispatchers.IO) {
             launch {
-                matchDataSource.listenToMatch(ownerId, matchId).collect { match ->
-                    if (match != null) {
-                        repository.insertMatchLocally(match)
+                matchDataSource.listenToMatch(ownerId, matchId)
+                    .catch { /* e.g. permission-denied — stop syncing rather than crash */ }
+                    .collect { match ->
+                        if (match != null) {
+                            repository.insertMatchLocally(match)
+                        }
                     }
-                }
             }
             launch {
-                matchDataSource.listenToPlayers(ownerId, matchId).collect { players ->
-                    if (players.isNotEmpty()) {
-                        repository.insertPlayersLocally(players)
+                matchDataSource.listenToPlayers(ownerId, matchId)
+                    .catch { }
+                    .collect { players ->
+                        if (players.isNotEmpty()) {
+                            repository.insertPlayersLocally(players)
+                        }
                     }
-                }
             }
             launch {
-                matchDataSource.listenToBalls(ownerId, matchId, 1).collect { balls ->
-                    repository.syncBallsLocally(matchId, 1, balls)
-                }
+                matchDataSource.listenToBalls(ownerId, matchId, 1)
+                    .catch { }
+                    .collect { balls ->
+                        repository.syncBallsLocally(matchId, 1, balls)
+                    }
             }
             launch {
-                matchDataSource.listenToBalls(ownerId, matchId, 2).collect { balls ->
-                    repository.syncBallsLocally(matchId, 2, balls)
-                }
+                matchDataSource.listenToBalls(ownerId, matchId, 2)
+                    .catch { }
+                    .collect { balls ->
+                        repository.syncBallsLocally(matchId, 2, balls)
+                    }
             }
         }
     }

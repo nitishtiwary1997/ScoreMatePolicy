@@ -53,6 +53,7 @@ class LoginViewModel @Inject constructor(
 
 
     fun continueAsGuest() {
+        userSession.isGuestMode = true
         viewModelScope.launch { _navigateToHome.send(Unit) }
     }
 

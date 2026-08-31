@@ -123,14 +123,18 @@ fun TournamentListScreen(
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = onCreateTournament,
-                containerColor = GoldPrimary,
-                contentColor = Color.Black,
-                shape = RoundedCornerShape(16.dp),
-                icon = { Icon(Icons.Default.Add, null, modifier = Modifier.size(20.dp)) },
-                text = { Text("New Tournament", fontWeight = FontWeight.Bold, fontSize = 14.sp) }
-            )
+            // Empty state already shows its own centered "Create Tournament" CTA —
+            // avoid showing both at once.
+            if (!uiState.isLoading && uiState.tournaments.isNotEmpty()) {
+                ExtendedFloatingActionButton(
+                    onClick = onCreateTournament,
+                    containerColor = GoldPrimary,
+                    contentColor = Color.Black,
+                    shape = RoundedCornerShape(16.dp),
+                    icon = { Icon(Icons.Default.Add, null, modifier = Modifier.size(20.dp)) },
+                    text = { Text("New Tournament", fontWeight = FontWeight.Bold, fontSize = 14.sp) }
+                )
+            }
         }
     ) { padding ->
         when {

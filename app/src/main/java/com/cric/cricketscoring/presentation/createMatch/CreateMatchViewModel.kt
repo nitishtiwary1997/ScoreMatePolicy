@@ -33,8 +33,13 @@ data class CreateMatchUiState(
     val savedTeams: List<SavedTeam> = emptyList(),
     val teamSaved: Boolean = false
 ) {
+    val teamNamesDuplicate: Boolean
+        get() = team1Name.isNotBlank() && team2Name.isNotBlank() &&
+                team1Name.trim().equals(team2Name.trim(), ignoreCase = true)
+
     val canCreate: Boolean
         get() = team1Name.isNotBlank() && team2Name.isNotBlank() &&
+                !teamNamesDuplicate &&
                 team1Players.size >= 2 && team2Players.size >= 2 &&
                 (totalOvers.toIntOrNull() ?: 0) > 0 &&
                 (playersPerTeam.toIntOrNull() ?: 0) >= 2
@@ -95,10 +100,15 @@ class CreateMatchViewModel @Inject constructor(
         val state = _uiState.value
         val name = state.newPlayerName.trim()
         if (name.isBlank()) return
+        val currentTeamPlayers = if (state.addingForTeam == 1) state.team1Players else state.team2Players
+        if (currentTeamPlayers.any { it.equals(name, ignoreCase = true) }) {
+            _uiState.update { it.copy(error = "\"$name\" is already added to this team.", newPlayerName = "") }
+            return
+        }
         if (state.addingForTeam == 1) {
-            _uiState.update { it.copy(team1Players = it.team1Players + name, newPlayerName = "") }
+            _uiState.update { it.copy(team1Players = it.team1Players + name, newPlayerName = "", error = null) }
         } else {
-            _uiState.update { it.copy(team2Players = it.team2Players + name, newPlayerName = "") }
+            _uiState.update { it.copy(team2Players = it.team2Players + name, newPlayerName = "", error = null) }
         }
     }
 
@@ -113,7 +123,11 @@ class CreateMatchViewModel @Inject constructor(
     fun createMatch() {
         val state = _uiState.value
         if (!state.canCreate) {
-            _uiState.update { it.copy(error = "Fill all fields. Each team needs at least 2 players.") }
+            val message = if (state.teamNamesDuplicate)
+                "Team 1 and Team 2 must have different names."
+            else
+                "Fill all fields. Each team needs at least 2 players."
+            _uiState.update { it.copy(error = message) }
             return
         }
         val overs = state.totalOvers.toInt()
